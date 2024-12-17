@@ -14,12 +14,6 @@
 #include "yolo.hpp"
 
 
-
-
-
-
-
-
 #define COUT_RED_START      std::cout << "\033[1;31m";
 #define COUT_GREEN_START    std::cout << "\033[1;32m";
 #define COUT_YELLOW_START   std::cout << "\033[1;33m";
@@ -28,6 +22,11 @@
 #define COUT_CYAN_START     std::cout << "\033[1;36m";
 #define COUT_WHITE_START    std::cout << "\033[1;37m";
 #define COUT_COLOR_END      std::cout << "\033[0m";
+
+#define TIMESTART auto Start = std::chrono::system_clock::now();
+#define TIMEEND auto End = std::chrono::system_clock::now();
+#define DURATION std::cout << "Duration: " << double(std::chrono::duration_cast<std::chrono::microseconds>(End - Start).count()) * std::chrono::microseconds::period::num / std::chrono::microseconds::period::den << "s" << std::endl;
+
 
 class K4A
 {
@@ -63,19 +62,19 @@ class K4A
 
         
 
-        void K4a_Open();   
+        void Open();   
 
-        void K4a_Installed_Count(); 
+        void Installed_Count(); 
 
-        void K4a_Configuration();
+        void Configuration();
 
-        void K4a_Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth);
+        void Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth);
 
-        void K4a_Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs);
+        void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs);
 
-        void K4a_Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs);
+        void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs);
 
-        void K4a_Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs);
+        void Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs);
 
         void Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
@@ -85,7 +84,7 @@ class K4A
 
         void K4a_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud); 
 
-        void K4a_Save_Image(int amount);
+        void Save_Image(int amount);
 
         K4A();
         

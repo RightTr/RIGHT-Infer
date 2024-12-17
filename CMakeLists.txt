@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 # project(infer)
-# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 # set(TENSORRT_DIR "/home/right/third-party/TensorRT-8.6.1.6")
 
@@ -28,7 +28,7 @@ cmake_minimum_required(VERSION 3.16)
 #     ${OpenCV_LIBS}
 #     ${PCL_LIBRARIES}
 #     k4a
-#     /home/right/Infer/lib/libyolo.a
+#     /home/right/RIGHT-Infer/lib/libyolo.a
 #     cuda cublas cudart cudnn
 #     ${TENSORRT_DIR}/lib/libnvinfer.so
 # )
@@ -50,14 +50,18 @@ cmake_minimum_required(VERSION 3.16)
 
 
 # target_link_libraries(capture 
-    # ${OpenCV_LIBS}
-    # k4a)
+#     ${OpenCV_LIBS}
+#     k4a)
 
 project(viewer)
 
 find_package(PCL 1.13 REQUIRED)
 
-add_executable(viewer src/viewer.cpp)
+include_directories(
+    inc
+)
+
+add_executable(viewer src/viewer.cpp src/pclprocess.cpp)
 
 target_link_libraries(viewer 
     ${PCL_LIBRARIES}

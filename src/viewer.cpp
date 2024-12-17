@@ -1,30 +1,36 @@
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/point_types.h>
 #include <pcl/io/ply_io.h>
+#include "pclprocess.hpp"
 
 int main(int argc, char const *argv[])
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud(new pcl::PointCloud<pcl::PointXYZ>);
 
-    if (pcl::io::loadPLYFile<pcl::PointXYZ>("/home/right/Infer/workspace/pcl/output_seg.ply", *pointcloud) == -1) 
-    {
-        PCL_ERROR("Couldn't Read File output.ply\n");
-        return 0;
-    }
-    else
-    {
-        std::cout <<  pointcloud->size() << std::endl;
-    }
+    std::string pcd_path = "/home/right/RIGHT-Infer/workspace/pcl/output_seg_basket.ply";
+    PCLPROCESS pclprocess;
+    pclprocess.Input_PointCloud(pcd_path, pointcloud);
+    
+    pclprocess.Vg_Filter(0.01, pointcloud);
+    
+    pclprocess.Sor_Filter(70, 0.01, pointcloud);
+    TIMESTART
+
+    pclprocess.Ror_Filter(200, 0.1, pointcloud);
+   
+    TIMEEND
+    DURATION
 
 
-    pcl::visualization::CloudViewer viewer("Basket Cloud Viewer");
 
-    viewer.showCloud(pointcloud);
+    // pcl::visualization::CloudViewer viewer("Basket Cloud Viewer");
 
-    while(1) 
-    {
+    // viewer.showCloud(pointcloud);
 
-    }
+    // while(1) 
+    // {
+
+    // }
 
     return 0;
 }

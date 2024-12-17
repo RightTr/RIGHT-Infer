@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void K4A::K4a_Open()
+void K4A::Open()
 {
     device = k4a::device::open(K4A_DEVICE_DEFAULT);
     if(!device)
@@ -20,7 +20,7 @@ void K4A::K4a_Open()
     }
 } 
 
-void K4A::K4a_Installed_Count()
+void K4A::Installed_Count()
 {
     device_count = k4a::device::get_installed_count();
     if(device_count == 0)
@@ -37,7 +37,7 @@ void K4A::K4a_Installed_Count()
     }
 }
 
-void K4A::K4a_Configuration()
+void K4A::Configuration()
 {
     config = K4A_DEVICE_CONFIG_INIT_DISABLE_ALL;
     config.color_format = K4A_IMAGE_FORMAT_COLOR_BGRA32;
@@ -58,7 +58,7 @@ void K4A::K4a_Configuration()
 
 }
 
-void K4A::K4a_Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
+void K4A::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
 {   
     if(device.get_capture(&capture, chrono::milliseconds(500)));
     {    
@@ -78,13 +78,13 @@ void K4A::K4a_Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
         image_cv_depth = cv::Mat(image_k4a_depth_to_color.get_height_pixels(), image_k4a_depth_to_color.get_width_pixels(), CV_16U, image_k4a_depth_to_color.get_buffer());
         image_cv_depth.convertTo(image_cv_depth, CV_8U);
         cv::resize(image_cv_xyz, image_cv_xyz, image_cv_depth.size(), 0, 0, cv::INTER_LINEAR);
-        cv::imshow("xyz", image_cv_xyz);
+        // cv::imshow("xyz", image_cv_xyz);
     }
     
 
 }
 
-void K4A::K4a_Save_Image(int amount)
+void K4A::Save_Image(int amount)
 {   
 
     if(device.get_capture(&capture, chrono::milliseconds(500)) && frame_count < amount)
@@ -114,7 +114,7 @@ void K4A::K4a_Save_Image(int amount)
 
 }
 
-void K4A::K4a_Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
+void K4A::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
 {
     for (auto &obj : objs) 
     {
@@ -152,7 +152,7 @@ void K4A::K4a_Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
 
 }
 
-void K4A::K4a_Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs)
+void K4A::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs)
 {
     for (auto &obj : objs) 
     {
@@ -195,7 +195,7 @@ void K4A::K4a_Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs)
 
 }
 
-void K4A::K4a_Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
+void K4A::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
 {
     image_mask_binary = cv::Mat::zeros(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC1);
     
@@ -211,7 +211,7 @@ void K4A::K4a_Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
                 cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR);  
 
                 mask.copyTo(image_mask_binary(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
-                cv::imshow("Binary", image_mask_binary);
+                // cv::imshow("Binary", image_mask_binary);
             }
 
         }
@@ -277,7 +277,6 @@ void K4A::Cv_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 
 }
 
-
 void K4A::K4a_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
     cloud.clear();
@@ -323,7 +322,6 @@ void K4A::K4a_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 
 }
 
-
 void K4A::Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
     cloud.clear();
@@ -331,7 +329,7 @@ void K4A::Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
     pcl::PointXYZ point;
     if(image_mask_binary.empty())
     {   
-        std::cout << "Mask is Empty!" << std::endl;
+        std::cout << "Binary Mask is Empty!" << std::endl;
         return ;
     }
     else
@@ -373,9 +371,9 @@ void K4A::Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 
 K4A::K4A()
 {
-    K4a_Installed_Count();
-    K4a_Open();
-    K4a_Configuration();
+    Installed_Count();
+    Open();
+    Configuration();
 }
 
 K4A::~K4A()
