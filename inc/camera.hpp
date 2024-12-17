@@ -1,3 +1,5 @@
+#ifndef CAMERA_HPP
+#define CAMERA_HPP
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
@@ -90,3 +92,5 @@ class K4A
         
         ~K4A();
 };
+
+#endif

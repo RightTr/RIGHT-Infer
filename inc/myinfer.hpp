@@ -1,5 +1,5 @@
-#ifndef __MYINFER_H__
-#define __MYINFER_H__
+#ifndef __MYINFER_HPP__
+#define __MYINFER_HPP__
 
 #include <opencv2/opencv.hpp>
 
