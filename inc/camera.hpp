@@ -30,7 +30,7 @@
 #define DURATION std::cout << "Duration: " << double(std::chrono::duration_cast<std::chrono::microseconds>(End - Start).count()) * std::chrono::microseconds::period::num / std::chrono::microseconds::period::den << "s" << std::endl;
 
 
-class K4A
+class K4a
 {
     private:
         k4a::device device;
@@ -88,9 +88,9 @@ class K4A
 
         void Save_Image(int amount);
 
-        K4A();
+        K4a();
         
-        ~K4A();
+        ~K4a();
 };
 
 #endif

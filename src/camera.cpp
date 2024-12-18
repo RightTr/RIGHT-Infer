@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void K4A::Open()
+void K4a::Open()
 {
     device = k4a::device::open(K4A_DEVICE_DEFAULT);
     if(!device)
@@ -20,7 +20,7 @@ void K4A::Open()
     }
 } 
 
-void K4A::Installed_Count()
+void K4a::Installed_Count()
 {
     device_count = k4a::device::get_installed_count();
     if(device_count == 0)
@@ -37,7 +37,7 @@ void K4A::Installed_Count()
     }
 }
 
-void K4A::Configuration()
+void K4a::Configuration()
 {
     config = K4A_DEVICE_CONFIG_INIT_DISABLE_ALL;
     config.color_format = K4A_IMAGE_FORMAT_COLOR_BGRA32;
@@ -58,7 +58,7 @@ void K4A::Configuration()
 
 }
 
-void K4A::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
+void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
 {   
     if(device.get_capture(&capture, chrono::milliseconds(500)));
     {    
@@ -84,7 +84,7 @@ void K4A::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
 
 }
 
-void K4A::Save_Image(int amount)
+void K4a::Save_Image(int amount)
 {   
 
     if(device.get_capture(&capture, chrono::milliseconds(500)) && frame_count < amount)
@@ -114,7 +114,7 @@ void K4A::Save_Image(int amount)
 
 }
 
-void K4A::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
+void K4a::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
 {
     for (auto &obj : objs) 
     {
@@ -152,7 +152,7 @@ void K4A::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
 
 }
 
-void K4A::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs)
+void K4a::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs)
 {
     for (auto &obj : objs) 
     {
@@ -195,7 +195,7 @@ void K4A::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs)
 
 }
 
-void K4A::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
+void K4a::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
 {
     image_mask_binary = cv::Mat::zeros(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC1);
     
@@ -219,7 +219,7 @@ void K4A::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
     image_cv_binary = image_mask_binary;
 }
 
-void K4A::K4a_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
+void K4a::K4a_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {   
     cloud.clear();
     for (int v = 0; v < image_k4a_depth.get_height_pixels(); v+=15)
@@ -250,11 +250,11 @@ void K4A::K4a_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
     }
 
     std::cout << "PointCloud:" << cloud.size() << std::endl;
-    pcl::io::savePLYFileASCII("/home/right/Infer/workspace/pcl/output.ply", cloud);
+    pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 
 }
 
-void K4A::Cv_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
+void K4a::Cv_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {      
     cloud.clear();
     
@@ -273,11 +273,11 @@ void K4A::Cv_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
     }
 
     std::cout << "Global PointCloud:" << cloud.size() << std::endl;
-    pcl::io::savePLYFileASCII("/home/right/Infer/workspace/pcl/output.ply", cloud);
+    pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 
 }
 
-void K4A::K4a_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
+void K4a::K4a_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
     cloud.clear();
     std::vector<cv::Point> nonzeros;
@@ -317,12 +317,12 @@ void K4A::K4a_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
         }
     }
     std::cout << "Seg PointCloud:" << cloud.size() << std::endl;
-    pcl::io::savePLYFileASCII("/home/right/Infer/workspace/pcl/output.ply", cloud);
+    pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 
 
 }
 
-void K4A::Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
+void K4a::Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
     cloud.clear();
     std::vector<cv::Point> nonzeros;
@@ -352,7 +352,7 @@ void K4A::Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
     //         }
     //     }
     // }
-    for(int i = 0; i < nonzeros.size(); i++)
+    for(int i = 0; i < nonzeros.size(); i+=7)
     {
         cv::Vec3s point3d = image_cv_xyz.at<cv::Vec3s>(nonzeros[i].y, nonzeros[i].x);
 
@@ -362,21 +362,21 @@ void K4A::Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
         cloud.push_back(point);
     }
     std::cout << "Seg PointCloud:" << cloud.size() << std::endl;
-    pcl::io::savePLYFileASCII("/home/right/Infer/workspace/pcl/output_seg.ply", cloud);
+    pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output_seg.ply", cloud);
 
 }
 
 
 
 
-K4A::K4A()
+K4a::K4a()
 {
     Installed_Count();
     Open();
     Configuration();
 }
 
-K4A::~K4A()
+K4a::~K4a()
 {
     image_k4a_depth.reset();
     image_k4a_color.reset();

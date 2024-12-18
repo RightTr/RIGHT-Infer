@@ -4,18 +4,18 @@
 
 
 
-yolo::Image YOLO::cvimg(const cv::Mat &image) 
+yolo::Image Yolo::cvimg(const cv::Mat &image) 
 { 
   return yolo::Image(image.data, image.cols, image.rows); 
 }
 
-void YOLO::Yolov8_Enable(std::string &engine_)
+void Yolo::Yolov8_Enable(std::string &engine_)
 {
   type = yolo::Type::V8;
   engine = engine_;
 }
 
-void YOLO::Yolov8_Seg_Enable(std::string &engine_seg)
+void Yolo::Yolov8_Seg_Enable(std::string &engine_seg)
 {
   type = yolo::Type::V8Seg;
   engine = engine_seg;
@@ -85,7 +85,7 @@ void YOLO::Yolov8_Seg_Enable(std::string &engine_seg)
 //   }
 // }
 
-void YOLO::Single_Inference(std::string path)
+void Yolo::Single_Inference(std::string path)
 {
   cv::Mat image = cv::imread(path);
   auto yolo = yolo::load(engine, type);
@@ -117,7 +117,7 @@ void YOLO::Single_Inference(std::string path)
   cv::imwrite(path + "result.jpg", image);
 }
 
-void YOLO::Single_Inference(cv::Mat &image)
+void Yolo::Single_Inference(cv::Mat &image)
 {
   auto yolo = yolo::load(engine, type);
   if (yolo == nullptr) return;
@@ -159,7 +159,7 @@ void YOLO::Single_Inference(cv::Mat &image)
   }
 }
 
-void YOLO::Single_Inference(cv::Mat &image, yolo::BoxArray &objs_out)
+void Yolo::Single_Inference(cv::Mat &image, yolo::BoxArray &objs_out)
 {
   auto Start = std::chrono::system_clock::now();
 
@@ -176,12 +176,12 @@ void YOLO::Single_Inference(cv::Mat &image, yolo::BoxArray &objs_out)
 
 }
 
-YOLO::YOLO()
+Yolo::Yolo()
 {
   
 }
 
-YOLO::~YOLO()
+Yolo::~Yolo()
 {
 
 }

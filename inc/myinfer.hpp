@@ -17,7 +17,7 @@ static const char *labels[] = {
     "Basket"
 };
 
-class YOLO
+class Yolo
 {
     private:
 
@@ -41,9 +41,9 @@ class YOLO
 
         void Single_Inference(cv::Mat &image, yolo::BoxArray &objs_out);
 
-        YOLO();
+        Yolo();
 
-        ~YOLO();
+        ~Yolo();
 
 };
 

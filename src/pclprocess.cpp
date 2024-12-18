@@ -1,6 +1,6 @@
 #include "pclprocess.hpp"
 
-void PCLPROCESS::Input_PointCloud(std::string &pcd_path, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+void PclProcess::Input_PointCloud(std::string &pcd_path, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
     if (pcl::io::loadPLYFile<pcl::PointXYZ>(pcd_path, *cloud_ptr) == -1) 
     {
@@ -13,12 +13,12 @@ void PCLPROCESS::Input_PointCloud(std::string &pcd_path, pcl::PointCloud<pcl::Po
     }
 }
 
-void PCLPROCESS::Input_PointCloud(pcl::PointCloud<pcl::PointXYZ> &cloud_in)
+void PclProcess::Input_PointCloud(pcl::PointCloud<pcl::PointXYZ> &cloud_in)
 {
     // cloud_ptr = &cloud_in;
 }
 
-void PCLPROCESS::Vg_Filter(float leafsize, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+void PclProcess::Vg_Filter(float leafsize, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
     pcl::VoxelGrid<pcl::PointXYZ> vg;
 
@@ -28,7 +28,7 @@ void PCLPROCESS::Vg_Filter(float leafsize, pcl::PointCloud<pcl::PointXYZ>::Ptr c
     std::cout << "Vg PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
-void PCLPROCESS::Sor_Filter(int amount, float std, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+void PclProcess::Sor_Filter(int amount, float std, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
     pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;	
     sor.setInputCloud(cloud_ptr);							
@@ -38,7 +38,7 @@ void PCLPROCESS::Sor_Filter(int amount, float std, pcl::PointCloud<pcl::PointXYZ
     std::cout << "Sor PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
-void PCLPROCESS::Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+void PclProcess::Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
     pcl::RadiusOutlierRemoval<pcl::PointXYZ> ror;
     ror.setInputCloud(cloud_ptr);        
@@ -48,13 +48,13 @@ void PCLPROCESS::Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::Point
     std::cout << "Ror PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
-PCLPROCESS::PCLPROCESS()
+PclProcess::PclProcess()
 {
 
 
 }
 
-PCLPROCESS::~PCLPROCESS()
+PclProcess::~PclProcess()
 {
 
   

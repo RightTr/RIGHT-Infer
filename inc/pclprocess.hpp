@@ -18,7 +18,7 @@
 
 
 
-class PCLPROCESS    
+class PclProcess   
 {
     private:
         
@@ -35,9 +35,9 @@ class PCLPROCESS
 
         void Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
 
-        PCLPROCESS();
+        PclProcess();
 
-        ~PCLPROCESS();
+        ~PclProcess();
 
 
 };
