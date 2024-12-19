@@ -219,6 +219,29 @@ void K4a::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
     image_cv_binary = image_mask_binary;
 }
 
+void K4a::Mask_to_Binary(yolo::BoxArray objs)
+{
+    image_mask_binary = cv::Mat::zeros(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC1);
+    
+    for (auto &obj : objs)
+    {
+        if (obj.seg) 
+        {
+            if(obj.left >=0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_mask_binary.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_mask_binary.rows)
+            {
+                mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
+                mask.convertTo(mask, CV_8UC1);
+
+                cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR);  
+
+                mask.copyTo(image_mask_binary(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
+                // cv::imshow("Binary", image_mask_binary);
+            }
+
+        }
+    }
+}
+
 void K4a::K4a_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {   
     cloud.clear();

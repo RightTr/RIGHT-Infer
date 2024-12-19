@@ -39,31 +39,17 @@ class K4a
         int device_count;
         k4a::image image_k4a_color, image_k4a_depth, image_k4a_infrared;
         k4a::image image_k4a_depth_to_color, image_k4a_depth_to_pcl;
-
         k4a_calibration_t calibration_depth;
-
         k4a::calibration k4aCalibration;
-
         k4a::transformation k4aTransformation;
-        
         std::string output_dir = "/home/right/Datasets/Basket/";
-
         std::string filename;
-
         int frame_count = 0;
-
         cv::Mat mask, mask_color, mask_depth;
         cv::Mat image_mask_binary;
-
         cv::Mat image_cv_xyz;
-
-        pcl::PointCloud<pcl::PointXYZ> cloud_seg;
-
-
-    public:
-
         
-
+    public:
         void Open();   
 
         void Installed_Count(); 
@@ -77,6 +63,8 @@ class K4a
         void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs);
 
         void Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs);
+
+        void Mask_to_Binary(yolo::BoxArray objs);
 
         void Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 

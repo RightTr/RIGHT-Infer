@@ -21,7 +21,10 @@
 class PclProcess   
 {
     private:
-        
+
+        pcl::VoxelGrid<pcl::PointXYZ> vg;   
+        pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;	
+        pcl::RadiusOutlierRemoval<pcl::PointXYZ> ror;
 
 
     public:

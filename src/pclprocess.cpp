@@ -20,32 +20,30 @@ void PclProcess::Input_PointCloud(pcl::PointCloud<pcl::PointXYZ> &cloud_in)
 
 void PclProcess::Vg_Filter(float leafsize, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
-    pcl::VoxelGrid<pcl::PointXYZ> vg;
-
     vg.setInputCloud(cloud_ptr);
     vg.setLeafSize(leafsize, leafsize, leafsize);
     vg.filter(*cloud_ptr);
-    std::cout << "Vg PointCloud Size:" << cloud_ptr->size() << std::endl;
+    // std::cout << "Vg PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
 void PclProcess::Sor_Filter(int amount, float std, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
-    pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;	
+    
     sor.setInputCloud(cloud_ptr);							
     sor.setMeanK(amount);										
     sor.setStddevMulThresh(std);
     sor.filter(*cloud_ptr);	
-    std::cout << "Sor PointCloud Size:" << cloud_ptr->size() << std::endl;
+    // std::cout << "Sor PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
 void PclProcess::Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
-    pcl::RadiusOutlierRemoval<pcl::PointXYZ> ror;
+    
     ror.setInputCloud(cloud_ptr);        
     ror.setRadiusSearch(radius);       
     ror.setMinNeighborsInRadius(amount);  
     ror.filter(*cloud_ptr);     
-    std::cout << "Ror PointCloud Size:" << cloud_ptr->size() << std::endl;
+    // std::cout << "Ror PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
 PclProcess::PclProcess()

@@ -2,6 +2,8 @@
 #define QUEUE_HPP
 
 #include <iostream>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
 #define MAXCAPACITY 10
 
@@ -36,5 +38,6 @@ template <class T> class QUEUE
 };
 
 template class QUEUE<int>;
+template class QUEUE<pcl::PointCloud<pcl::PointXYZ>::ConstPtr>;
 
 #endif
