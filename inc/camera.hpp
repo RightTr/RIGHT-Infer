@@ -29,6 +29,7 @@
 #define TIMEEND auto End = std::chrono::system_clock::now();
 #define DURATION std::cout << "Duration: " << double(std::chrono::duration_cast<std::chrono::microseconds>(End - Start).count()) * std::chrono::microseconds::period::num / std::chrono::microseconds::period::den << "s" << std::endl;
 
+#define MIN_DISTANCE 2.0
 
 class K4a
 {
@@ -48,7 +49,8 @@ class K4a
         cv::Mat mask, mask_color, mask_depth;
         cv::Mat image_mask_binary;
         cv::Mat image_cv_xyz;
-        
+        k4a_calibration_intrinsics_t intrinsics;
+
     public:
         void Open();   
 

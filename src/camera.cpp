@@ -54,6 +54,7 @@ void K4a::Configuration()
 
     k4aCalibration = device.get_calibration(config.depth_mode, config.color_resolution);
     calibration_depth = device.get_calibration(K4A_DEPTH_MODE_NFOV_UNBINNED, K4A_COLOR_RESOLUTION_720P);
+    intrinsics = calibration_depth.depth_camera_calibration.intrinsics;
     k4aTransformation = k4a::transformation(k4aCalibration);
 
 }
@@ -66,6 +67,7 @@ void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
         image_k4a_depth = capture.get_depth_image();
         image_k4a_depth_to_color = k4aTransformation.depth_image_to_color_camera(image_k4a_depth);
         image_k4a_depth_to_pcl = k4aTransformation.depth_image_to_point_cloud(image_k4a_depth, K4A_CALIBRATION_TYPE_DEPTH);
+        
 
         image_cv_xyz = cv::Mat(image_k4a_depth_to_pcl.get_height_pixels(), image_k4a_depth_to_pcl.get_width_pixels(), CV_16SC3, 
                                 (void *)image_k4a_depth_to_pcl.get_buffer(), static_cast<size_t>(image_k4a_depth_to_pcl.get_stride_bytes()));
@@ -245,16 +247,16 @@ void K4a::Mask_to_Binary(yolo::BoxArray objs)
 void K4a::K4a_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {   
     cloud.clear();
-    for (int v = 0; v < image_k4a_depth.get_height_pixels(); v+=15)
+    for (int v = 0; v < image_k4a_depth_to_color.get_height_pixels(); v+=4)
     {
-        for (int u = 0; u < image_k4a_depth.get_width_pixels(); u+=15) 
+        for (int u = 0; u < image_k4a_depth_to_color.get_width_pixels(); u+=4) 
         {   
             int valid = 0;
             k4a_float2_t point2d{static_cast<float>(u), static_cast<float>(v)};
             k4a_float3_t point3d ={0};
             pcl::PointXYZ point;
 
-            uint16_t depth = image_k4a_depth.get_buffer()[v * image_k4a_depth.get_width_pixels() + u];
+            uint16_t depth = image_k4a_depth_to_color.get_buffer()[v * image_k4a_depth_to_color.get_width_pixels() + u];
 
             if (depth == 0) continue;
 
@@ -282,15 +284,15 @@ void K4a::Cv_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
     cloud.clear();
     
     pcl::PointXYZ point;
-    for (int v = 0; v < image_cv_xyz.rows; v+=7)
+    for (int v = 0; v < image_cv_xyz.rows; v+=8)
     {
-        for (int u = 0; u < image_cv_xyz.cols; u+=7) 
+        for (int u = 0; u < image_cv_xyz.cols; u+=8) 
         {   
             
             cv::Vec3s point3d = image_cv_xyz.at<cv::Vec3s>(v, u);
-            point.x = static_cast<float>(point3d[0]) / 1000.0f;
-            point.y = static_cast<float>(point3d[1]) / 1000.0f; 
-            point.z = static_cast<float>(point3d[2]) / 1000.0f; 
+            point.x = static_cast<float>(point3d[1]) / 1000.0f;
+            point.y = static_cast<float>(point3d[2]) / 1000.0f; 
+            point.z = static_cast<float>(point3d[0]) / 1000.0f; 
             cloud.push_back(point);
         }
     }
@@ -358,7 +360,7 @@ void K4a::Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
     else
     {
         cv::findNonZero(image_mask_binary, nonzeros); 
-        std::cout << "NonZeroPoints:" << nonzeros.size() << std::endl;
+        // std::cout << "NonZeroPoints:" << nonzeros.size() << std::endl;
     }
 
     // for (int v = 0; v < image_mask_binary.rows; v+=2)
@@ -375,13 +377,14 @@ void K4a::Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
     //         }
     //     }
     // }
-    for(int i = 0; i < nonzeros.size(); i+=7)
+    for(int i = 0; i < nonzeros.size(); i++)
     {
         cv::Vec3s point3d = image_cv_xyz.at<cv::Vec3s>(nonzeros[i].y, nonzeros[i].x);
 
-        point.x = static_cast<float>(point3d[0]) / 1000.0f;
-        point.y = static_cast<float>(point3d[1]) / 1000.0f; 
-        point.z = static_cast<float>(point3d[2]) / 1000.0f; 
+        point.x = static_cast<float>(point3d[1]) / 1000.0f;
+        point.y = static_cast<float>(point3d[2]) / 1000.0f; 
+        point.z = static_cast<float>(point3d[0]) / 1000.0f; 
+        if(sqrt(point.x * point.x + point.y * point.y + point.z * point.z) < MIN_DISTANCE) continue ;
         cloud.push_back(point);
     }
     std::cout << "Seg PointCloud:" << cloud.size() << std::endl;
@@ -404,4 +407,5 @@ K4a::~K4a()
     image_k4a_depth.reset();
     image_k4a_color.reset();
     capture.reset();
+    device.close();
 }

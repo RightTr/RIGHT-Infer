@@ -81,14 +81,21 @@ void* Mythread::Mask_Seg_to_Pcl(void* argc)
 void* Mythread::Pcl_Process(void* argc)
 {
     Mythread* thread_instance = static_cast<Mythread*>(argc);
+
     while(1)
     {
         pthread_mutex_lock(&mutex);
         *(cloud_seg_ptr_) = *(thread_instance->cloud_seg_ptr);
         pthread_mutex_unlock(&mutex);
-        thread_instance->pclprocess->Vg_Filter(0.01, cloud_seg_ptr_);
-        thread_instance->pclprocess->Sor_Filter(70, 0.01, cloud_seg_ptr_);
-        thread_instance->pclprocess->Ror_Filter(20, 0.1, cloud_seg_ptr_);
+        // thread_instance->pclprocess->Vg_Filter(0.01, cloud_seg_ptr_);
+        thread_instance->pclprocess->Sor_Filter(50, 0.01, cloud_seg_ptr_);
+        thread_instance->pclprocess->Ror_Filter(35, 0.15, cloud_seg_ptr_);
+        pcl::compute3DCentroid(*(cloud_seg_ptr_), *(thread_instance->centroid));
+
+        std::cout << "x:" << thread_instance->centroid->x() 
+                << ",y:" << thread_instance->centroid->y() 
+                << ",z:" << thread_instance->centroid->z() << std::endl;
+
         pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output_opt.ply", *cloud_seg_ptr_);    
         usleep(100);
     }

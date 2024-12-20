@@ -13,11 +13,6 @@ void PclProcess::Input_PointCloud(std::string &pcd_path, pcl::PointCloud<pcl::Po
     }
 }
 
-void PclProcess::Input_PointCloud(pcl::PointCloud<pcl::PointXYZ> &cloud_in)
-{
-    // cloud_ptr = &cloud_in;
-}
-
 void PclProcess::Vg_Filter(float leafsize, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
     vg.setInputCloud(cloud_ptr);

@@ -7,6 +7,9 @@
 #include <pcl/filters/radius_outlier_removal.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/point_cloud.h>
+#include <pcl/common/centroid.h> 
+#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/visualization/pcl_visualizer.h>
 
 #include <iostream>
 #include <string>

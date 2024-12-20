@@ -26,9 +26,9 @@
 //     {
 //         k4a.Image_to_Cv(image_color, image_depth);
 
+//         // k4a.K4a_Depth_to_Pcl(cloud);
 //         // k4a.Cv_Depth_to_Pcl(cloud);
-//         TIMESTART
-//         k4a.Mask_to_Binary(image_test, objs);
+//         // k4a.Mask_to_Binary(image_test, objs);
        
 
 //         // yolo.Yolov8_Enable(engine_v8);
@@ -37,9 +37,7 @@
 
 //         k4a.Color_With_Mask(image_color, objs);
 //         k4a.Depth_With_Mask(image_depth, objs);
-//         k4a.Cv_Mask_to_Pcl(cloud_seg);
-//         TIMEEND
-//         DURATION
+//         // k4a.Cv_Mask_to_Pcl(cloud_seg);
 
 //         cv::imshow("Seg Depth Image", image_depth);
 //         cv::imshow("Seg Color Image", image_color);
@@ -50,10 +48,6 @@
 //         if (cv::waitKey(1) == 27) break;
 
 //     }
-
-    
-    
-
 
 //     return 0;
 // }

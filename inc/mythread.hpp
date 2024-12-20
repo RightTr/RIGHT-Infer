@@ -25,7 +25,7 @@ class Mythread
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_seg_ptr = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
 
         
-
+        std::shared_ptr<Eigen::Vector4f> centroid = std::make_shared<Eigen::Vector4f>();
         std::shared_ptr<cv::Mat> color_ptr = std::make_shared<cv::Mat>();
         std::shared_ptr<cv::Mat> depth_ptr = std::make_shared<cv::Mat>();
         std::shared_ptr<yolo::BoxArray> objs_ptr = std::make_shared<yolo::BoxArray>();

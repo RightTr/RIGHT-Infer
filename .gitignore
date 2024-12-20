@@ -1,6 +1,5 @@
 build
 .vscode
 datasets
-workspace
 yolo11n.pt
 run
