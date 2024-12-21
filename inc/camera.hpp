@@ -9,9 +9,13 @@
 #include <pcl/io/ply_io.h>
 
 #include <k4a/k4a.hpp>
+#include <librealsense2/rs.hpp>
+#include <librealsense2/rsutil.h>
+
 
 #include <iostream>
 #include <unistd.h>
+#include <memory>
 
 #include "yolo.hpp"
 
@@ -82,5 +86,35 @@ class K4a
         
         ~K4a();
 };
+
+class RealSense
+{
+    private:
+        rs2::pipeline pipe;
+        rs2::config cfg;
+        rs2::pipeline_profile profile;
+        rs2::frameset frameset;
+        rs2::video_stream_profile depth_profile;
+        rs2_intrinsics intrinsics;
+        float depth_value;
+
+    public:
+        void Open_Configuration();
+
+        void Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth);
+
+        RealSense();
+
+        ~RealSense();
+
+
+};
+
+
+
+
+
+
+
 
 #endif

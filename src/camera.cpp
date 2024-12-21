@@ -392,9 +392,6 @@ void K4a::Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 
 }
 
-
-
-
 K4a::K4a()
 {
     Installed_Count();
@@ -408,4 +405,43 @@ K4a::~K4a()
     image_k4a_color.reset();
     capture.reset();
     device.close();
+}
+
+
+void RealSense::Open_Configuration()
+{
+    cfg.enable_stream(RS2_STREAM_DEPTH,640,480,RS2_FORMAT_Z16,30);
+    cfg.enable_stream(RS2_STREAM_COLOR,640,480,RS2_FORMAT_BGR8,30);
+    profile = pipe.start(cfg);
+       
+    
+    
+
+    
+}
+
+void RealSense::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
+{   
+    rs2::align align_to_color(RS2_STREAM_COLOR);
+    frameset  = pipe.wait_for_frames();
+    frameset = align_to_color.process(frameset);
+    rs2::video_frame frame_color = frameset.get_color_frame();
+    rs2::depth_frame frame_depth = frameset.get_depth_frame();
+    // depth_profile = frame_depth_ptr->get_profile().as<rs2::video_stream_profile>(); 
+    // intrinsics = depth_profile.get_intrinsics();
+    // depth_value = depth_frame.get_distance(x, y);
+    image_cv_color = cv::Mat(frame_color.get_height(), frame_color.get_width(), CV_8UC3, (void*)frame_color.get_data());
+    image_cv_depth = cv::Mat(frame_depth.get_height(), frame_depth.get_width(), CV_16UC1, (void*)frame_depth.get_data());
+    image_cv_depth.convertTo(image_cv_depth, CV_8U, 255.0 / 1000);
+
+}
+
+RealSense::RealSense()
+{
+    Open_Configuration();
+}
+
+RealSense::~RealSense()
+{
+    
 }

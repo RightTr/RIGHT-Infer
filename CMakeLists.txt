@@ -12,6 +12,7 @@ find_package(OpenCV REQUIRED)
 find_package(CUDA REQUIRED)
 find_package(k4a REQUIRED)
 find_package(PCL 1.13 REQUIRED)
+find_package(realsense2 REQUIRED)
 
 
 include_directories(
@@ -36,6 +37,7 @@ target_link_libraries(infer
     cuda cublas cudart cudnn
     ${TENSORRT_DIR}/lib/libnvinfer.so
     Threads::Threads
+    realsense2::realsense2
 )
 
 
