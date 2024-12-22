@@ -35,6 +35,8 @@
 
 #define MIN_DISTANCE 2.0
 
+
+
 class K4a
 {
     private:
@@ -44,7 +46,8 @@ class K4a
         int device_count;
         k4a::image image_k4a_color, image_k4a_depth, image_k4a_infrared;
         k4a::image image_k4a_depth_to_color, image_k4a_depth_to_pcl;
-        k4a_calibration_t calibration_depth;
+        k4a_calibration_t calibration;
+        // k4a_calibration_camera_t
         k4a::calibration k4aCalibration;
         k4a::transformation k4aTransformation;
         std::string output_dir = "/home/right/Datasets/Basket/";
@@ -53,7 +56,6 @@ class K4a
         cv::Mat mask, mask_color, mask_depth;
         cv::Mat image_mask_binary;
         cv::Mat image_cv_xyz;
-        k4a_calibration_intrinsics_t intrinsics;
 
     public:
         void Open();   
@@ -96,12 +98,16 @@ class RealSense
         rs2::frameset frameset;
         rs2::video_stream_profile depth_profile;
         rs2_intrinsics intrinsics;
-        float depth_value;
+        cv::Mat mask, mask_color, mask_depth;
 
     public:
-        void Open_Configuration();
+        void Configuration();
 
         void Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth);
+
+        void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs);
+
+        void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs);
 
         RealSense();
 
