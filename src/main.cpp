@@ -59,15 +59,17 @@ int main(int argc, char const *argv[])
 {
     Mythread mythread;
 
-    pthread_t thread[3] = {0};
+    pthread_t thread[4] = {0};
 
-    pthread_create(&thread[0], NULL, Mythread::K4a_Get_Image, &mythread);
-    pthread_create(&thread[1], NULL, Mythread::Mask_Seg_to_Pcl, &mythread);
-    pthread_create(&thread[2], NULL, Mythread::Pcl_Process, &mythread);
+    // pthread_create(&thread[0], NULL, Mythread::K4a_Get_Image, &mythread);
+    // pthread_create(&thread[1], NULL, Mythread::Mask_Seg_to_Pcl, &mythread);
+    // pthread_create(&thread[2], NULL, Mythread::Pcl_Process, &mythread);
+    pthread_create(&thread[4], NULL, Mythread::Rs_Get_Image, &mythread);
 
-    pthread_join(thread[0], NULL);
-    pthread_join(thread[1], NULL);
-    pthread_join(thread[2], NULL);
+    // pthread_join(thread[0], NULL);
+    // pthread_join(thread[1], NULL);
+    // pthread_join(thread[2], NULL);
+    pthread_join(thread[4], NULL);
     return 0;
 }
 
