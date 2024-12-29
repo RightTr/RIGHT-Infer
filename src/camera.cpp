@@ -111,7 +111,7 @@ void K4a::Save_Image(int amount)
 
 }
 
-void K4a::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
+void K4a::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray &objs)
 {
     for (auto &obj : objs) 
     {
@@ -133,14 +133,9 @@ void K4a::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
             {
                 mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
                 mask.convertTo(mask, CV_8UC1);
-
                 cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
-
-
                 cv::cvtColor(mask, mask_color, cv::COLOR_GRAY2BGR); 
-
                 cv::addWeighted(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask_color, 0.8, 0.0, mask_color);  
-
                 mask_color.copyTo(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
             }
 
@@ -149,7 +144,7 @@ void K4a::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
 
 }
 
-void K4a::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs)
+void K4a::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray &objs)
 {
     for (auto &obj : objs) 
     {
@@ -179,10 +174,9 @@ void K4a::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs)
     }
 }
 
-void K4a::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
+void K4a::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray &objs)
 {
     image_mask_binary = cv::Mat::zeros(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC1);
-    
     for (auto &obj : objs)
     {
         if (obj.seg) 
@@ -191,9 +185,7 @@ void K4a::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
             {
                 mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
                 mask.convertTo(mask, CV_8UC1);
-
                 cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR);  
-
                 mask.copyTo(image_mask_binary(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
                 // cv::imshow("Binary", image_mask_binary);
             }
@@ -203,10 +195,9 @@ void K4a::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
     image_cv_binary = image_mask_binary;
 }
 
-void K4a::Mask_to_Binary(yolo::BoxArray objs)
+void K4a::Mask_to_Binary(yolo::BoxArray &objs)
 {
     image_mask_binary = cv::Mat::zeros(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC1);
-    
     for (auto &obj : objs)
     {
         if (obj.seg) 
@@ -215,13 +206,10 @@ void K4a::Mask_to_Binary(yolo::BoxArray objs)
             {
                 mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
                 mask.convertTo(mask, CV_8UC1);
-
                 cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR);  
-
                 mask.copyTo(image_mask_binary(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
                 // cv::imshow("Binary", image_mask_binary);
             }
-
         }
     }
 }
@@ -407,13 +395,14 @@ void RealSense::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
     frameset = align_to_color.process(frameset);
     rs2::video_frame frame_color = frameset.get_color_frame();
     rs2::depth_frame frame_depth = frameset.get_depth_frame();
-    // depth_profile = frame_depth_ptr->get_profile().as<rs2::video_stream_profile>(); 
-    // intrinsics = depth_profile.get_intrinsics();
-    // depth_value = depth_frame.get_distance(x, y);
-    image_cv_color = cv::Mat(frame_color.get_height(), frame_color.get_width(), CV_8UC3, (void*)frame_color.get_data());
-    image_cv_depth = cv::Mat(frame_depth.get_height(), frame_depth.get_width(), CV_16UC1, (void*)frame_depth.get_data());
-    image_cv_depth.convertTo(image_cv_depth, CV_8U, 255.0 / 1000);
-
+    depth_profile = frame_depth.get_profile().as<rs2::video_stream_profile>(); 
+    intrinsics_depth = depth_profile.get_intrinsics();
+    std::cout << intrinsics_depth.ppy << std::endl;
+    image_rs_color = cv::Mat(frame_color.get_height(), frame_color.get_width(), CV_8UC3, (void*)frame_color.get_data());
+    image_rs_depth = cv::Mat(frame_depth.get_height(), frame_depth.get_width(), CV_16UC1, (void*)frame_depth.get_data());
+    image_rs_depth.convertTo(image_rs_depth, CV_8U, 255.0 / 1000);
+    image_cv_color = image_rs_color;
+    image_cv_depth = image_rs_depth;
 }
 
 void RealSense::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
@@ -474,6 +463,48 @@ void RealSense::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs)
         }
     }
 }
+
+void RealSense::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
+{
+    image_mask_binary = cv::Mat::zeros(image_rs_color.rows, image_rs_color.cols, CV_8UC1);
+    for (auto &obj : objs)
+    {
+        if (obj.seg) 
+        {
+            if(obj.left >=0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_mask_binary.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_mask_binary.rows)
+            {
+                mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
+                mask.convertTo(mask, CV_8UC1);
+                cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR);  
+                mask.copyTo(image_mask_binary(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
+                // cv::imshow("Binary", image_mask_binary);
+            }
+
+        }
+    }
+    image_cv_binary = image_mask_binary;
+}
+
+void RealSense::Mask_to_Binary(yolo::BoxArray &objs)
+{
+    image_mask_binary = cv::Mat::zeros(image_rs_color.rows, image_rs_color.cols, CV_8UC1);
+    for (auto &obj : objs)
+    {
+        if (obj.seg) 
+        {
+            if(obj.left >=0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_mask_binary.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_mask_binary.rows)
+            {
+                mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
+                mask.convertTo(mask, CV_8UC1);
+                cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR);  
+                mask.copyTo(image_mask_binary(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
+                // cv::imshow("Binary", image_mask_binary);
+            }
+
+        }
+    }
+}
+
 RealSense::RealSense()
 {
     Configuration();

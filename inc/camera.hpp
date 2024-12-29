@@ -66,13 +66,13 @@ class K4a
 
         void Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth);
 
-        void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs);
+        void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray &objs);
 
-        void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs);
+        void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray &objs);
 
-        void Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs);
+        void Mask_to_Binary(cv::Mat &image_cv_binary , yolo::BoxArray &objs);
 
-        void Mask_to_Binary(yolo::BoxArray objs);
+        void Mask_to_Binary(yolo::BoxArray &objs);
 
         void Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
@@ -97,8 +97,11 @@ class RealSense
         rs2::pipeline_profile profile;
         rs2::frameset frameset;
         rs2::video_stream_profile depth_profile;
-        rs2_intrinsics intrinsics;
+        rs2_intrinsics intrinsics_depth;
+        rs2_intrinsics intrinsics_color;
+        cv::Mat image_rs_color, image_rs_depth;
         cv::Mat mask, mask_color, mask_depth;
+        cv::Mat image_mask_binary;
 
     public:
         void Configuration();
@@ -108,6 +111,10 @@ class RealSense
         void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs);
 
         void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs);
+
+        void Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs);
+
+        void Mask_to_Binary(yolo::BoxArray &objs);
 
         RealSense();
 
