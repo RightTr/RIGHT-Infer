@@ -6,7 +6,7 @@ int main(int argc, char const *argv[])
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr centroidCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::PointXYZRGB centroidPoint;
     pcl::visualization::CloudViewer viewer("Basket Cloud Viewer");
-    std::string pcd_path = "/home/right/RIGHT-Infer/workspace/pcl/output_opt.ply";
+    std::string pcd_path = "/home/right/RIGHT-Infer/workspace/pcl/output.ply";
     Eigen::Vector4f centroid;
 
     PclProcess pclprocess;

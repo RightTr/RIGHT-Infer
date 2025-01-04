@@ -102,6 +102,8 @@ class RealSense
         cv::Mat image_rs_color, image_rs_depth;
         cv::Mat mask, mask_color, mask_depth;
         cv::Mat image_mask_binary;
+        rs2::pointcloud pointcloud_rs;
+        rs2::points points;
 
     public:
         void Configuration();
@@ -116,18 +118,15 @@ class RealSense
 
         void Mask_to_Binary(yolo::BoxArray &objs);
 
+        void Rs_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
+
+        void Dt_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
+
         RealSense();
 
         ~RealSense();
 
 
 };
-
-
-
-
-
-
-
 
 #endif

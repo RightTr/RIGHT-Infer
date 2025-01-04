@@ -45,13 +45,10 @@ void K4a::Configuration()
     config.depth_mode = K4A_DEPTH_MODE_NFOV_UNBINNED;
     config.camera_fps = K4A_FRAMES_PER_SECOND_30;
     config.synchronized_images_only = true;
-
     device.start_cameras(&config);
-
     COUT_GREEN_START
     cout << "Start Device Success!" << endl;
     COUT_COLOR_END
-
     k4aCalibration = device.get_calibration(config.depth_mode, config.color_resolution);
     k4aTransformation = k4a::transformation(k4aCalibration);
 }
@@ -64,13 +61,8 @@ void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
         image_k4a_depth = capture.get_depth_image();
         image_k4a_depth_to_color = k4aTransformation.depth_image_to_color_camera(image_k4a_depth);
         image_k4a_depth_to_pcl = k4aTransformation.depth_image_to_point_cloud(image_k4a_depth, K4A_CALIBRATION_TYPE_DEPTH);
-        
-
         image_cv_xyz = cv::Mat(image_k4a_depth_to_pcl.get_height_pixels(), image_k4a_depth_to_pcl.get_width_pixels(), CV_16SC3, 
                                 (void *)image_k4a_depth_to_pcl.get_buffer(), static_cast<size_t>(image_k4a_depth_to_pcl.get_stride_bytes()));
-
-        
-        
         image_cv_color = cv::Mat(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC4, image_k4a_color.get_buffer());
         cv::cvtColor(image_cv_color, image_cv_color, cv::COLOR_BGRA2BGR);
 
@@ -252,7 +244,6 @@ void K4a::K4a_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 void K4a::Cv_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {      
     cloud.clear();
-    
     pcl::PointXYZ point;
     for (int v = 0; v < image_cv_xyz.rows; v+=8)
     {
@@ -377,7 +368,6 @@ K4a::~K4a()
     device.close();
 }
 
-
 void RealSense::Configuration()
 {
     cfg.enable_stream(RS2_STREAM_DEPTH,640,480,RS2_FORMAT_Z16,30);
@@ -397,7 +387,12 @@ void RealSense::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
     rs2::depth_frame frame_depth = frameset.get_depth_frame();
     depth_profile = frame_depth.get_profile().as<rs2::video_stream_profile>(); 
     intrinsics_depth = depth_profile.get_intrinsics();
-    std::cout << intrinsics_depth.ppy << std::endl;
+    pointcloud_rs.map_to(frame_color);
+    points = pointcloud_rs.calculate(frame_depth);
+    // std::cout << intrinsics_depth.ppy << std::endl;
+    // float depth_scale = pipe.get_active_profile().get_device().first<rs2::depth_sensor>().get_depth_scale();
+    // float depth_offset = pipe.get_active_profile().get_device().first<rs2::depth_sensor>().get_option(RS2_OPTION_DEPTH_UNITS);
+    // std::cout << depth_offset << std::endl;
     image_rs_color = cv::Mat(frame_color.get_height(), frame_color.get_width(), CV_8UC3, (void*)frame_color.get_data());
     image_rs_depth = cv::Mat(frame_depth.get_height(), frame_depth.get_width(), CV_16UC1, (void*)frame_depth.get_data());
     image_rs_depth.convertTo(image_rs_depth, CV_8U, 255.0 / 1000);
@@ -479,7 +474,6 @@ void RealSense::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
                 mask.copyTo(image_mask_binary(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
                 // cv::imshow("Binary", image_mask_binary);
             }
-
         }
     }
     image_cv_binary = image_mask_binary;
@@ -500,10 +494,54 @@ void RealSense::Mask_to_Binary(yolo::BoxArray &objs)
                 mask.copyTo(image_mask_binary(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
                 // cv::imshow("Binary", image_mask_binary);
             }
-
         }
     }
 }
+
+void RealSense::Rs_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
+{
+    cloud.clear();
+    pcl::PointXYZ point;
+    const rs2::vertex* vertices = points.get_vertices();
+    for(int i = 0; i < points.size(); i+=13)
+    {
+        point.x = vertices[i].x;
+        point.y = vertices[i].y;
+        point.z = vertices[i].z;
+        cloud.push_back(point);
+    }
+    std::cout << "Global PointCloud:" << cloud.size() << std::endl;
+    pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
+}
+
+void RealSense::Dt_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
+{
+    cloud.clear();
+    rs2::depth_frame frame_depth = frameset.get_depth_frame(); 
+    for(int u = 0; u < frame_depth.get_width(); u+=14)
+    {
+        for(int v = 0; v < frame_depth.get_height(); v+=14)
+        {
+            float depth_value = frame_depth.get_distance(u, v);
+            if(depth_value != 0)
+            {
+                float x = (u - intrinsics_depth.ppx) * depth_value / intrinsics_depth.fx;
+                float y = (v - intrinsics_depth.ppy) * depth_value / intrinsics_depth.fy;
+                float z = depth_value;
+                cloud.push_back(pcl::PointXYZ(x, y ,z));
+            }
+        }
+    } 
+    std::cout << "Global PointCloud:" << cloud.size() << std::endl;
+    pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
+}
+
+void RealSense::Dt_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
+{
+
+}
+
+
 
 RealSense::RealSense()
 {
