@@ -122,6 +122,8 @@ class RealSense
 
         void Dt_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
+        void Dt_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
+
         RealSense();
 
         ~RealSense();
