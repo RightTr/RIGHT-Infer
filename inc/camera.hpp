@@ -45,9 +45,9 @@ class K4a
         k4a::capture capture;
         int device_count;
         k4a::image image_k4a_color, image_k4a_depth, image_k4a_infrared;
-        k4a::image image_k4a_depth_to_color, image_k4a_depth_to_pcl;
+        k4a::image image_k4a_depth_to_color;
         k4a_calibration_t calibration;
-        // k4a_calibration_camera_t
+        k4a_calibration_camera_t depth_intrinsics;
         k4a::calibration k4aCalibration;
         k4a::transformation k4aTransformation;
         std::string output_dir = "/home/right/Datasets/Basket/";
@@ -55,7 +55,7 @@ class K4a
         int frame_count = 0;
         cv::Mat mask, mask_color, mask_depth;
         cv::Mat image_mask_binary;
-        cv::Mat image_cv_xyz;
+
 
     public:
         void Open();   
@@ -74,13 +74,17 @@ class K4a
 
         void Mask_to_Binary(yolo::BoxArray &objs);
 
-        void Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
+        void XYZ_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
         void K4a_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
-        void Cv_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud); 
+        void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
+
+        void XYZ_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud); 
 
         void K4a_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud); 
+
+        void Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
         void Save_Image(int amount);
 
@@ -120,9 +124,9 @@ class RealSense
 
         void Rs_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
-        void Dt_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
+        void Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
-        void Dt_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
+        void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
         RealSense();
 

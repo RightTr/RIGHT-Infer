@@ -1,9 +1,5 @@
 #include "myinfer.hpp"
 
-
-
-
-
 yolo::Image Yolo::cvimg(const cv::Mat &image) 
 { 
   return yolo::Image(image.data, image.cols, image.rows); 

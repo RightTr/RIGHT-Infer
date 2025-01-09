@@ -5,8 +5,7 @@
 
 * 支持Azure Kinect DK [Azure-Kinect-Sensor-SDK](https://github.com/microsoft/Azure-Kinect-Sensor-SDK)  
 
-支持Realsense 
-D435i [librealsense](https://github.com/IntelRealSense/librealsense)
+    支持Realsense D435i [librealsense](https://github.com/IntelRealSense/librealsense)
 
 * 支持YOLOv8、YOLOv8-Seg
   

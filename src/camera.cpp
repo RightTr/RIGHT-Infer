@@ -51,6 +51,9 @@ void K4a::Configuration()
     COUT_COLOR_END
     k4aCalibration = device.get_calibration(config.depth_mode, config.color_resolution);
     k4aTransformation = k4a::transformation(k4aCalibration);
+    depth_intrinsics = k4aCalibration.depth_camera_calibration;
+    // std::cout << depth_intrinsics.intrinsics.parameters.param.fx << std::endl;
+    
 }
 
 void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
@@ -60,15 +63,10 @@ void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
         image_k4a_color = capture.get_color_image();
         image_k4a_depth = capture.get_depth_image();
         image_k4a_depth_to_color = k4aTransformation.depth_image_to_color_camera(image_k4a_depth);
-        image_k4a_depth_to_pcl = k4aTransformation.depth_image_to_point_cloud(image_k4a_depth, K4A_CALIBRATION_TYPE_DEPTH);
-        image_cv_xyz = cv::Mat(image_k4a_depth_to_pcl.get_height_pixels(), image_k4a_depth_to_pcl.get_width_pixels(), CV_16SC3, 
-                                (void *)image_k4a_depth_to_pcl.get_buffer(), static_cast<size_t>(image_k4a_depth_to_pcl.get_stride_bytes()));
         image_cv_color = cv::Mat(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC4, image_k4a_color.get_buffer());
         cv::cvtColor(image_cv_color, image_cv_color, cv::COLOR_BGRA2BGR);
-
         image_cv_depth = cv::Mat(image_k4a_depth_to_color.get_height_pixels(), image_k4a_depth_to_color.get_width_pixels(), CV_16U, image_k4a_depth_to_color.get_buffer());
         image_cv_depth.convertTo(image_cv_depth, CV_8U);
-        cv::resize(image_cv_xyz, image_cv_xyz, image_cv_depth.size(), 0, 0, cv::INTER_LINEAR);
         // cv::imshow("xyz", image_cv_xyz);
     }
 }
@@ -238,12 +236,16 @@ void K4a::K4a_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 
     // std::cout << "PointCloud:" << cloud.size() << std::endl;
     // pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
-
 }
 
-void K4a::Cv_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
+void K4a::XYZ_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {      
     cloud.clear();
+    k4a::image image_k4a_depth_to_pcl = k4aTransformation.depth_image_to_point_cloud(image_k4a_depth, K4A_CALIBRATION_TYPE_DEPTH);
+    cv::Mat image_cv_xyz = cv::Mat(image_k4a_depth_to_pcl.get_height_pixels(), image_k4a_depth_to_pcl.get_width_pixels(), CV_16SC3, 
+                        (void *)image_k4a_depth_to_pcl.get_buffer(), static_cast<size_t>(image_k4a_depth_to_pcl.get_stride_bytes()));
+    cv::resize(image_cv_xyz, image_cv_xyz, 
+                cv::Size(image_k4a_depth_to_color.get_width_pixels(),image_k4a_depth_to_color.get_height_pixels()), 0, 0, cv::INTER_LINEAR);
     pcl::PointXYZ point;
     for (int v = 0; v < image_cv_xyz.rows; v+=8)
     {
@@ -261,6 +263,28 @@ void K4a::Cv_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
     std::cout << "Global PointCloud:" << cloud.size() << std::endl;
     pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 
+}
+
+void K4a::Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
+{
+    cloud.clear();
+    uint16_t* depth_data = (uint16_t*)image_k4a_depth_to_color.get_buffer();
+    for (int v = 0; v < image_k4a_depth_to_color.get_height_pixels(); v+=9)
+    {
+        for (int u = 0; u < image_k4a_depth_to_color.get_width_pixels(); u+=9) 
+        {   
+            float depth_value = static_cast<float>(depth_data[v * image_k4a_depth_to_color.get_width_pixels() + u] / 1000.0);
+            if(depth_value != 0)
+            {
+                float x = (u - depth_intrinsics.intrinsics.parameters.param.cx) * depth_value / depth_intrinsics.intrinsics.parameters.param.fx;
+                float y = (v - depth_intrinsics.intrinsics.parameters.param.cy) * depth_value / depth_intrinsics.intrinsics.parameters.param.fy;
+                float z = depth_value;
+                cloud.push_back(pcl::PointXYZ(x, y ,z));
+            }
+        }
+    }
+    std::cout << "Global PointCloud:" << cloud.size() << std::endl;
+    pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 }
 
 void K4a::K4a_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
@@ -308,9 +332,14 @@ void K4a::K4a_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 
 }
 
-void K4a::Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
+void K4a::XYZ_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
     cloud.clear();
+    k4a::image image_k4a_depth_to_pcl = k4aTransformation.depth_image_to_point_cloud(image_k4a_depth, K4A_CALIBRATION_TYPE_DEPTH);
+    cv::Mat image_cv_xyz = cv::Mat(image_k4a_depth_to_pcl.get_height_pixels(), image_k4a_depth_to_pcl.get_width_pixels(), CV_16SC3, 
+                        (void *)image_k4a_depth_to_pcl.get_buffer(), static_cast<size_t>(image_k4a_depth_to_pcl.get_stride_bytes()));
+    cv::resize(image_cv_xyz, image_cv_xyz, 
+                cv::Size(image_k4a_depth_to_color.get_width_pixels(),image_k4a_depth_to_color.get_height_pixels()), 0, 0, cv::INTER_LINEAR);
     std::vector<cv::Point> nonzeros;
     pcl::PointXYZ point;
     if(image_mask_binary.empty())
@@ -323,7 +352,6 @@ void K4a::Cv_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
         cv::findNonZero(image_mask_binary, nonzeros); 
         // std::cout << "NonZeroPoints:" << nonzeros.size() << std::endl;
     }
-
     // for (int v = 0; v < image_mask_binary.rows; v+=2)
     // {
     //     for (int u = 0; u < image_mask_binary.cols; u+=2)
@@ -514,7 +542,7 @@ void RealSense::Rs_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
     pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 }
 
-void RealSense::Dt_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
+void RealSense::Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
     cloud.clear();
     rs2::depth_frame frame_depth = frameset.get_depth_frame(); 
@@ -536,7 +564,7 @@ void RealSense::Dt_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
     pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 }
 
-void RealSense::Dt_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
+void RealSense::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
 
 }
