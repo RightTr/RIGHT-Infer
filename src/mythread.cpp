@@ -88,7 +88,7 @@ void* Mythread::K4a_Pcl_Process(void* argc)
         pthread_mutex_lock(&mutex_k4a);
         *(cloud_seg_ptr_) = *(thread_instance->cloud_seg_ptr);
         pthread_mutex_unlock(&mutex_k4a);
-        // thread_instance->pclprocess->Vg_Filter(0.01, cloud_seg_ptr_);
+        thread_instance->pclprocess->Vg_Filter(0.01, cloud_seg_ptr_);
         thread_instance->pclprocess->Sor_Filter(50, 0.01, cloud_seg_ptr_);
         thread_instance->pclprocess->Ror_Filter(35, 0.15, cloud_seg_ptr_);
         pcl::compute3DCentroid(*(cloud_seg_ptr_), *(thread_instance->centroid));

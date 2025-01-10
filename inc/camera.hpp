@@ -70,19 +70,7 @@ class K4a
 
         void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray &objs);
 
-        void Mask_to_Binary(cv::Mat &image_cv_binary , yolo::BoxArray &objs);
-
-        void Mask_to_Binary(yolo::BoxArray &objs);
-
-        void XYZ_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
-
-        void K4a_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
-
         void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArray &objs);
-
-        void XYZ_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud); 
-
-        void K4a_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud); 
 
         void Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 

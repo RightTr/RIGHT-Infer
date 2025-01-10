@@ -28,8 +28,6 @@
 //         // realsense.Image_to_Cv(image_color, image_depth);
 
 //         // k4a.Value_Depth_to_Pcl(cloud);
-//         // // k4a.K4a_Depth_to_Pcl(cloud);
-//         // // k4a.Cv_Depth_to_Pcl(cloud);
 //         // // k4a.Mask_to_Binary(image_test, objs);
        
 
