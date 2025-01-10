@@ -41,6 +41,16 @@ void PclProcess::Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::Point
     // std::cout << "Ror PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
+void PclProcess::Circle_Fitting(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+{
+
+
+
+
+
+
+}
+
 PclProcess::PclProcess()
 {
 

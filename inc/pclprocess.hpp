@@ -41,6 +41,8 @@ class PclProcess
 
         void Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
 
+        void Circle_Fitting(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
+
         PclProcess();
 
         ~PclProcess();
