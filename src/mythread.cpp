@@ -64,8 +64,7 @@ void* Mythread::K4a_Seg_to_Pcl(void* argc)
     {
         pthread_mutex_lock(&mutex_k4a);
         thread_instance->yolo->Single_Inference(*(thread_instance->color_k4a_ptr), *(thread_instance->objs_ptr));
-        thread_instance->k4a->Mask_to_Binary(*(thread_instance->objs_ptr));
-        thread_instance->k4a->XYZ_Mask_to_Pcl(*(thread_instance->cloud_seg_ptr));
+        thread_instance->k4a->Value_Mask_to_Pcl(*(thread_instance->cloud_seg_ptr), *(thread_instance->objs_ptr));
         color_seg_ptr = std::make_shared<cv::Mat>(thread_instance->color_k4a_ptr->clone());
         depth_seg_ptr = std::make_shared<cv::Mat>(thread_instance->depth_k4a_ptr->clone());
         objs_seg_ptr = std::make_shared<yolo::BoxArray>(*(thread_instance->objs_ptr));

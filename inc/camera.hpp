@@ -46,14 +46,14 @@ class K4a
         int device_count;
         k4a::image image_k4a_color, image_k4a_depth, image_k4a_infrared;
         k4a::image image_k4a_depth_to_color;
-        k4a_calibration_t calibration;
+        // k4a_calibration_t calibration;
         k4a_calibration_camera_t depth_intrinsics;
+        k4a_calibration_camera_t color_intrinsics;
         k4a::calibration k4aCalibration;
         k4a::transformation k4aTransformation;
         std::string output_dir = "/home/right/Datasets/Basket/";
         std::string filename;
         int frame_count = 0;
-        cv::Mat mask, mask_color, mask_depth;
         cv::Mat image_mask_binary;
 
 
@@ -78,7 +78,7 @@ class K4a
 
         void K4a_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
-        void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
+        void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArray &objs);
 
         void XYZ_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud); 
 
@@ -111,7 +111,7 @@ class RealSense
 
     public:
         void Configuration();
-
+        
         void Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth);
 
         void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs);

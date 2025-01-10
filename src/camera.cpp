@@ -51,9 +51,7 @@ void K4a::Configuration()
     COUT_COLOR_END
     k4aCalibration = device.get_calibration(config.depth_mode, config.color_resolution);
     k4aTransformation = k4a::transformation(k4aCalibration);
-    depth_intrinsics = k4aCalibration.depth_camera_calibration;
-    // std::cout << depth_intrinsics.intrinsics.parameters.param.fx << std::endl;
-    
+    color_intrinsics = k4aCalibration.color_camera_calibration;
 }
 
 void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
@@ -109,29 +107,25 @@ void K4a::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray &objs)
         std::tie(b, g, r) = yolo::random_color(obj.class_label);
         cv::rectangle(image_cv_color, cv::Point(obj.left, obj.top), cv::Point(obj.right, obj.bottom),
                     cv::Scalar(b, g, r), 5);
-
         auto name = labels[obj.class_label];
         auto caption = cv::format("%s %.2f", name, obj.confidence);
         int width = cv::getTextSize(caption, 0, 1, 2, nullptr).width + 10;
         cv::rectangle(image_cv_color, cv::Point(obj.left - 3, obj.top - 33),
                     cv::Point(obj.left + width, obj.top), cv::Scalar(b, g, r), -1);
         cv::putText(image_cv_color, caption, cv::Point(obj.left, obj.top - 5), 0, 1, cv::Scalar::all(0), 2, 16);
-
         if (obj.seg) 
         {
             if(obj.left >=0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_cv_color.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_cv_color.rows)
             {
-                mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
+                cv::Mat mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
                 mask.convertTo(mask, CV_8UC1);
                 cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
-                cv::cvtColor(mask, mask_color, cv::COLOR_GRAY2BGR); 
-                cv::addWeighted(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask_color, 0.8, 0.0, mask_color);  
-                mask_color.copyTo(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
+                cv::cvtColor(mask, mask, cv::COLOR_GRAY2BGR); 
+                cv::addWeighted(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask, 0.8, 0.0, mask);  
+                mask.copyTo(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
             }
-
         }
     }
-
 }
 
 void K4a::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray &objs)
@@ -142,7 +136,6 @@ void K4a::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray &objs)
         std::tie(b, g, r) = yolo::random_color(obj.class_label);
         cv::rectangle(image_cv_depth, cv::Point(obj.left, obj.top), cv::Point(obj.right, obj.bottom),
                     cv::Scalar(b, g, r), 5);
-
         auto name = labels[obj.class_label];
         auto caption = cv::format("%s %.2f", name, obj.confidence);
         int width = cv::getTextSize(caption, 0, 1, 2, nullptr).width + 10;
@@ -153,12 +146,11 @@ void K4a::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray &objs)
         {
             if(obj.left >= 0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_cv_depth.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_cv_depth.rows)
             {
-                mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
+                cv::Mat mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
                 mask.convertTo(mask, CV_8UC1);
                 cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
-                mask_depth = mask;
-                cv::addWeighted(image_cv_depth(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask_depth, 1.0, 0.0, mask_depth);  
-                mask_depth.copyTo(image_cv_depth(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
+                cv::addWeighted(image_cv_depth(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask, 1.0, 0.0, mask);  
+                mask.copyTo(image_cv_depth(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
             }
         }
     }
@@ -173,13 +165,12 @@ void K4a::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray &objs)
         {
             if(obj.left >=0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_mask_binary.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_mask_binary.rows)
             {
-                mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
+                cv::Mat mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
                 mask.convertTo(mask, CV_8UC1);
                 cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR);  
                 mask.copyTo(image_mask_binary(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
                 // cv::imshow("Binary", image_mask_binary);
             }
-
         }
     }
     image_cv_binary = image_mask_binary;
@@ -194,7 +185,7 @@ void K4a::Mask_to_Binary(yolo::BoxArray &objs)
         {
             if(obj.left >=0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_mask_binary.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_mask_binary.rows)
             {
-                mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
+                cv::Mat mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
                 mask.convertTo(mask, CV_8UC1);
                 cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR);  
                 mask.copyTo(image_mask_binary(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
@@ -259,16 +250,15 @@ void K4a::XYZ_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
             cloud.push_back(point);
         }
     }
-
     std::cout << "Global PointCloud:" << cloud.size() << std::endl;
     pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
-
 }
 
 void K4a::Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
     cloud.clear();
     uint16_t* depth_data = (uint16_t*)image_k4a_depth_to_color.get_buffer();
+    TIMESTART
     for (int v = 0; v < image_k4a_depth_to_color.get_height_pixels(); v+=9)
     {
         for (int u = 0; u < image_k4a_depth_to_color.get_width_pixels(); u+=9) 
@@ -276,13 +266,15 @@ void K4a::Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
             float depth_value = static_cast<float>(depth_data[v * image_k4a_depth_to_color.get_width_pixels() + u] / 1000.0);
             if(depth_value != 0)
             {
-                float x = (u - depth_intrinsics.intrinsics.parameters.param.cx) * depth_value / depth_intrinsics.intrinsics.parameters.param.fx;
-                float y = (v - depth_intrinsics.intrinsics.parameters.param.cy) * depth_value / depth_intrinsics.intrinsics.parameters.param.fy;
+                float x = (u - color_intrinsics.intrinsics.parameters.param.cx) * depth_value / color_intrinsics.intrinsics.parameters.param.fx;
+                float y = -(v - color_intrinsics.intrinsics.parameters.param.cy) * depth_value / color_intrinsics.intrinsics.parameters.param.fy;
                 float z = depth_value;
                 cloud.push_back(pcl::PointXYZ(x, y ,z));
             }
         }
     }
+    TIMEEND
+    DURATION
     std::cout << "Global PointCloud:" << cloud.size() << std::endl;
     pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 }
@@ -379,6 +371,34 @@ void K4a::XYZ_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
     std::cout << "Seg PointCloud:" << cloud.size() << std::endl;
     pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output_seg.ply", cloud);
 
+}
+
+void K4a::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArray &objs)
+{
+    cloud.clear();
+    uint16_t* depth_data = (uint16_t*)image_k4a_depth_to_color.get_buffer();
+    for(auto &obj : objs)
+    {
+        for (int v = obj.top; v < obj.bottom; v++)
+        {
+            for (int u = obj.left; u < obj.right; u++) 
+            {   
+                if(obj.seg->data[u, v] == 0)
+                {   
+                    float depth_value = static_cast<float>(depth_data[v * image_k4a_depth_to_color.get_width_pixels() + u] / 1000.0);
+                    if(depth_value != 0)
+                    {
+                        float x = (u - color_intrinsics.intrinsics.parameters.param.cx) * depth_value / color_intrinsics.intrinsics.parameters.param.fx;
+                        float y = -(v - color_intrinsics.intrinsics.parameters.param.cy) * depth_value / color_intrinsics.intrinsics.parameters.param.fy;
+                        float z = depth_value;
+                        cloud.push_back(pcl::PointXYZ(x, y ,z));
+                    }
+                }
+            }
+        }
+    }
+    std::cout << "Global PointCloud:" << cloud.size() << std::endl;
+    pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 }
 
 K4a::K4a()

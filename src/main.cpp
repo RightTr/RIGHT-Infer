@@ -27,7 +27,7 @@ int main(int argc, char const *argv[])
         k4a.Image_to_Cv(image_color, image_depth);
         // realsense.Image_to_Cv(image_color, image_depth);
 
-        k4a.Value_Depth_to_Pcl(cloud);
+        // k4a.Value_Depth_to_Pcl(cloud);
         // // k4a.K4a_Depth_to_Pcl(cloud);
         // // k4a.Cv_Depth_to_Pcl(cloud);
         // // k4a.Mask_to_Binary(image_test, objs);
@@ -36,14 +36,14 @@ int main(int argc, char const *argv[])
         // // yolo.Yolov8_Enable(engine_v8);
         yolo.Yolov8_Seg_Enable(engine_v8_seg);
         yolo.Single_Inference(image_color, objs);
+        k4a.Value_Mask_to_Pcl(cloud, objs);
         // realsense.Color_With_Mask(image_color, objs);
         // realsense.Depth_With_Mask(image_depth, objs);
         // realsense.Dt_Depth_to_Pcl(cloud);
 
-        // k4a.Color_With_Mask(image_color, objs);
-        // k4a.Depth_With_Mask(image_depth, objs);
-        // // k4a.Cv_Mask_to_Pcl(cloud_seg);
-
+        k4a.Color_With_Mask(image_color, objs);
+        k4a.Depth_With_Mask(image_depth, objs);
+        
         cv::imshow("Seg Depth Image", image_depth);
         cv::imshow("Seg Color Image", image_color);
 
