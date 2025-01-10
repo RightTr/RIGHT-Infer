@@ -38,6 +38,6 @@ template <class T> class QUEUE
 };
 
 template class QUEUE<int>;
-template class QUEUE<pcl::PointCloud<pcl::PointXYZ>::ConstPtr>;
+template class QUEUE<pcl::PointCloud<pcl::PointXYZ>>;
 
 #endif

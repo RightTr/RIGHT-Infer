@@ -10,10 +10,16 @@
 #include <pcl/common/centroid.h> 
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/sample_consensus/ransac.h>
+#include <pcl/sample_consensus/sac_model_circle3d.h>
+#include <pcl/filters/extract_indices.h>
+
 
 #include <iostream>
 #include <string>
 #include <chrono>
+
+#include "queue.hpp"
 
 #define TIMESTART auto Start = std::chrono::system_clock::now();
 #define TIMEEND auto End = std::chrono::system_clock::now();
@@ -28,6 +34,7 @@ class PclProcess
         pcl::VoxelGrid<pcl::PointXYZ> vg;   
         pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;	
         pcl::RadiusOutlierRemoval<pcl::PointXYZ> ror;
+        pcl::ExtractIndices<pcl::PointXYZ> extract;
 
 
     public:
@@ -41,7 +48,8 @@ class PclProcess
 
         void Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
 
-        void Circle_Fitting(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
+        void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
+
 
         PclProcess();
 

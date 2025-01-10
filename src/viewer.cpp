@@ -13,9 +13,10 @@ int main(int argc, char const *argv[])
     PclProcess pclprocess;
     pclprocess.Input_PointCloud(pcd_path, pointcloud);
     TIMESTART
-    pclprocess.Vg_Filter(0.06, pointcloud); 
+    pclprocess.Vg_Filter(0.03, pointcloud); 
     pclprocess.Sor_Filter(50, 0.01, pointcloud);
-    pclprocess.Ror_Filter(5, 0.1, pointcloud);
+    pclprocess.Ror_Filter(15, 0.1, pointcloud);
+    pclprocess.Circle_Extract(pointcloud);
     TIMEEND
     DURATION
     // pcl::compute3DCentroid(*pointcloud, centroid);

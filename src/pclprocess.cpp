@@ -41,19 +41,31 @@ void PclProcess::Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::Point
     // std::cout << "Ror PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
-void PclProcess::Circle_Fitting(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+void PclProcess::Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
-
-
-
-
-
-
+    pcl::SampleConsensusModelCircle3D<pcl::PointXYZ>::Ptr circle3d(new pcl::SampleConsensusModelCircle3D<pcl::PointXYZ>(cloud_ptr));
+    pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
+    pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(circle3d);
+    std::vector<int> ransac_inliers; 
+    Eigen::VectorXf coeff;
+    ransac.setDistanceThreshold(0.03);							
+	ransac.setMaxIterations(500);								
+	ransac.computeModel();
+	ransac.getModelCoefficients(coeff);	
+    ransac.getInliers(ransac_inliers);	
+    inliers->indices = ransac_inliers;
+    extract.setInputCloud(cloud_ptr); 
+    extract.setIndices(inliers); 
+    extract.setNegative(false); 
+    extract.filter(*cloud_ptr);					                            
+    std::cout << cloud_ptr->size() << std::endl;
+    std::cout << "x:" << coeff[0] << ",y:" << coeff[1] << ",z:" << coeff[2] << ",r=" << coeff[3] 
+	     	<< ",ex:" << coeff[4] << ",ey:" << coeff[5] << ",ez:" << coeff[6] << std::endl;
 }
+
 
 PclProcess::PclProcess()
 {
-
 
 }
 
