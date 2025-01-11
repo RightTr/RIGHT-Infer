@@ -54,7 +54,6 @@ class K4a
         std::string output_dir = "/home/right/Datasets/Basket/";
         std::string filename;
         int frame_count = 0;
-        cv::Mat image_mask_binary;
 
 
     public:
@@ -92,8 +91,7 @@ class RealSense
         rs2_intrinsics intrinsics_depth;
         rs2_intrinsics intrinsics_color;
         cv::Mat image_rs_color, image_rs_depth;
-        cv::Mat mask, mask_color, mask_depth;
-        cv::Mat image_mask_binary;
+        cv::Mat mask;
         rs2::pointcloud pointcloud_rs;
         rs2::points points;
 
@@ -105,10 +103,6 @@ class RealSense
         void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs);
 
         void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs);
-
-        void Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs);
-
-        void Mask_to_Binary(yolo::BoxArray &objs);
 
         void Rs_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 

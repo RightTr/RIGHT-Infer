@@ -72,13 +72,11 @@ void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
 void K4a::Save_Image(int amount)
 {   
 
-    if(device.get_capture(&capture, chrono::milliseconds(500)) && frame_count < amount)
+    if(device.get_capture(&capture, chrono::milliseconds(100)) && frame_count < amount)
     {
         image_k4a_color = capture.get_color_image();
         cv::Mat image_saved = cv::Mat(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC4, image_k4a_color.get_buffer());
-
         filename = output_dir + "basket_" + to_string(frame_count) + ".png";
-
         if(cv::imwrite(filename, image_saved))
         {
             COUT_YELLOW_START
@@ -260,26 +258,26 @@ void RealSense::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
 {
     for (auto &obj : objs) 
     {
-        uint8_t b, g, r;
-        std::tie(b, g, r) = yolo::random_color(obj.class_label);
-        cv::rectangle(image_cv_color, cv::Point(obj.left, obj.top), cv::Point(obj.right, obj.bottom),
-                    cv::Scalar(b, g, r), 5);
-        auto name = labels[obj.class_label];
-        auto caption = cv::format("%s %.2f", name, obj.confidence);
-        int width = cv::getTextSize(caption, 0, 1, 2, nullptr).width + 10;
-        cv::rectangle(image_cv_color, cv::Point(obj.left - 3, obj.top - 33),
-                    cv::Point(obj.left + width, obj.top), cv::Scalar(b, g, r), -1);
-        cv::putText(image_cv_color, caption, cv::Point(obj.left, obj.top - 5), 0, 1, cv::Scalar::all(0), 2, 16);
-        if (obj.seg) 
+        if(obj.left >=0 && obj.right < image_cv_color.cols && obj.top >= 0 && obj.bottom <= image_cv_color.rows)
         {
-            if(obj.left >=0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_cv_color.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_cv_color.rows)
+            uint8_t b, g, r;
+            std::tie(b, g, r) = yolo::random_color(obj.class_label);
+            cv::rectangle(image_cv_color, cv::Point(obj.left, obj.top), cv::Point(obj.right, obj.bottom),
+                        cv::Scalar(b, g, r), 5);
+            auto name = labels[obj.class_label];
+            auto caption = cv::format("%s %.2f", name, obj.confidence);
+            int width = cv::getTextSize(caption, 0, 1, 2, nullptr).width + 10;
+            cv::rectangle(image_cv_color, cv::Point(obj.left - 3, obj.top - 33),
+                        cv::Point(obj.left + width, obj.top), cv::Scalar(b, g, r), -1);
+            cv::putText(image_cv_color, caption, cv::Point(obj.left, obj.top - 5), 0, 1, cv::Scalar::all(0), 2, 16);
+            if (obj.seg) 
             {
-                mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
-                mask.convertTo(mask, CV_8UC1);
-                cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
-                cv::cvtColor(mask, mask_color, cv::COLOR_GRAY2BGR); 
-                cv::addWeighted(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask_color, 0.8, 0.0, mask_color);  
-                mask_color.copyTo(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
+                    mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
+                    mask.convertTo(mask, CV_8UC1);
+                    cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
+                    cv::cvtColor(mask, mask, cv::COLOR_GRAY2BGR); 
+                    cv::addWeighted(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask, 0.8, 0.0, mask);  
+                    mask.copyTo(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
             }
         }
     }
@@ -289,66 +287,28 @@ void RealSense::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs)
 {
     for (auto &obj : objs) 
     {
-        uint8_t b, g, r;
-        std::tie(b, g, r) = yolo::random_color(obj.class_label);
-        cv::rectangle(image_cv_depth, cv::Point(obj.left, obj.top), cv::Point(obj.right, obj.bottom),
-                    cv::Scalar(b, g, r), 5);
-
-        auto name = labels[obj.class_label];
-        auto caption = cv::format("%s %.2f", name, obj.confidence);
-        int width = cv::getTextSize(caption, 0, 1, 2, nullptr).width + 10;
-        cv::rectangle(image_cv_depth, cv::Point(obj.left - 3, obj.top - 33),
-                    cv::Point(obj.left + width, obj.top), cv::Scalar(b, g, r), -1);
-        cv::putText(image_cv_depth, caption, cv::Point(obj.left, obj.top - 5), 0, 1, cv::Scalar::all(0), 2, 16); 
-        if (obj.seg) 
+        if(obj.left >=0 && obj.right < image_cv_depth.cols && obj.top >= 0 && obj.bottom <= image_cv_depth.rows)
         {
-            if(obj.left >= 0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_cv_depth.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_cv_depth.rows)
+            uint8_t b, g, r;
+            std::tie(b, g, r) = yolo::random_color(obj.class_label);
+            cv::rectangle(image_cv_depth, cv::Point(obj.left, obj.top), cv::Point(obj.right, obj.bottom),
+                        cv::Scalar(b, g, r), 5);
+            auto name = labels[obj.class_label];
+            auto caption = cv::format("%s %.2f", name, obj.confidence);
+            int width = cv::getTextSize(caption, 0, 1, 2, nullptr).width + 10;
+            cv::rectangle(image_cv_depth, cv::Point(obj.left - 3, obj.top - 33),
+                        cv::Point(obj.left + width, obj.top), cv::Scalar(b, g, r), -1);
+            cv::putText(image_cv_depth, caption, cv::Point(obj.left, obj.top - 5), 0, 1, cv::Scalar::all(0), 2, 16); 
+            if (obj.seg) 
             {
-                mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
-                mask.convertTo(mask, CV_8UC1);
-                cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
-                mask_depth = mask;
-                cv::addWeighted(image_cv_depth(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask_depth, 1.0, 0.0, mask_depth);  
-                mask_depth.copyTo(image_cv_depth(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
-            }
-        }
-    }
-}
-
-void RealSense::Mask_to_Binary(cv::Mat &image_cv_binary, yolo::BoxArray objs)
-{
-    image_mask_binary = cv::Mat::zeros(image_rs_color.rows, image_rs_color.cols, CV_8UC1);
-    for (auto &obj : objs)
-    {
-        if (obj.seg) 
-        {
-            if(obj.left >=0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_mask_binary.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_mask_binary.rows)
-            {
-                mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
-                mask.convertTo(mask, CV_8UC1);
-                cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR);  
-                mask.copyTo(image_mask_binary(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
-                // cv::imshow("Binary", image_mask_binary);
-            }
-        }
-    }
-    image_cv_binary = image_mask_binary;
-}
-
-void RealSense::Mask_to_Binary(yolo::BoxArray &objs)
-{
-    image_mask_binary = cv::Mat::zeros(image_rs_color.rows, image_rs_color.cols, CV_8UC1);
-    for (auto &obj : objs)
-    {
-        if (obj.seg) 
-        {
-            if(obj.left >=0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_mask_binary.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_mask_binary.rows)
-            {
-                mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
-                mask.convertTo(mask, CV_8UC1);
-                cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR);  
-                mask.copyTo(image_mask_binary(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
-                // cv::imshow("Binary", image_mask_binary);
+                if(obj.left >= 0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_cv_depth.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_cv_depth.rows)
+                {
+                    mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
+                    mask.convertTo(mask, CV_8UC1);
+                    cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
+                    cv::addWeighted(image_cv_depth(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask, 1.0, 0.0, mask);  
+                    mask.copyTo(image_cv_depth(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
+                }
             }
         }
     }
