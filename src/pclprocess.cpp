@@ -47,24 +47,38 @@ void PclProcess::Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
     {
         return ;
     }
-    pcl::SampleConsensusModelCircle3D<pcl::PointXYZ>::Ptr circle3d(new pcl::SampleConsensusModelCircle3D<pcl::PointXYZ>(cloud_ptr));
+    pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
-    pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(circle3d);
-    std::vector<int> ransac_inliers; 
-    Eigen::VectorXf coeff;
-    ransac.setDistanceThreshold(0.04);							
-	ransac.setMaxIterations(10000);								
-	ransac.computeModel();
-	ransac.getModelCoefficients(coeff);	
-    ransac.getInliers(ransac_inliers);	
-    inliers->indices = ransac_inliers;
-    extract.setInputCloud(cloud_ptr); 
-    extract.setIndices(inliers); 
-    extract.setNegative(false); 
-    extract.filter(*cloud_ptr);					                            
-    std::cout << cloud_ptr->size() << std::endl;
-    std::cout << "x:" << coeff[0] << ",y:" << coeff[1] << ",z:" << coeff[2] << ",r=" << coeff[3] 
-	     	<< ",ex:" << coeff[4] << ",ey:" << coeff[5] << ",ez:" << coeff[6] << std::endl;
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+    std::vector<pcl::ModelCoefficients> coeff;
+    ne.setInputCloud(cloud_ptr);
+    ne.setSearchMethod(tree);
+    ne.setRadiusSearch(0.05);
+    ne.compute(*normals);
+    seg.setOptimizeCoefficients(true);
+    seg.setModelType(pcl::SACMODEL_CIRCLE3D);
+    seg.setMethodType(pcl::SAC_RANSAC);
+    seg.setNormalDistanceWeight(0.5);
+    seg.setMaxIterations(10000);
+    seg.setDistanceThreshold(0.15);
+    seg.setRadiusLimits(0.2, 0.25);
+    seg.setInputNormals(normals);
+    seg.setInputCloud(cloud_ptr);
+    seg.segment(*inliers, *coefficients);
+    extract.setInputCloud(cloud_ptr);
+    extract.setIndices(inliers);
+    extract.setNegative(false);
+    extract.filter(*cloud_ptr);
+
+    coeff.push_back(*coefficients);
+    std::cout << coeff.size() << std::endl;
+    for (int i = 0; i < coeff.size(); i++)
+    {
+        
+        std::cout << coeff.at(i).values[2] << std::endl;
+    }
+    
+    
 }
 
 

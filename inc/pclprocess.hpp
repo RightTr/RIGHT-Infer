@@ -12,7 +12,9 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/sample_consensus/ransac.h>
 #include <pcl/sample_consensus/sac_model_circle3d.h>
+#include<pcl/segmentation/sac_segmentation.h>
 #include <pcl/filters/extract_indices.h>
+#include <pcl/features/normal_3d.h>   
 
 
 #include <iostream>
@@ -35,6 +37,9 @@ class PclProcess
         pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;	
         pcl::RadiusOutlierRemoval<pcl::PointXYZ> ror;
         pcl::ExtractIndices<pcl::PointXYZ> extract;
+        pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
+        pcl::search::KdTree<pcl::PointXYZ>::Ptr tree;
+        pcl::SACSegmentationFromNormals<pcl::PointXYZ,pcl::Normal> seg;
 
 
     public:
