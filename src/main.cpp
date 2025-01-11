@@ -27,7 +27,7 @@
 //         k4a.Image_to_Cv(image_color, image_depth);
 //         // realsense.Image_to_Cv(image_color, image_depth);
 
-//         // k4a.Value_Depth_to_Pcl(cloud);
+//         k4a.Value_Depth_to_Pcl(cloud);
 //         // // k4a.K4a_Depth_to_Pcl(cloud);
 //         // // k4a.Cv_Depth_to_Pcl(cloud);
 //         // // k4a.Mask_to_Binary(image_test, objs);
@@ -36,7 +36,7 @@
 //         // // yolo.Yolov8_Enable(engine_v8);
 //         yolo.Yolov8_Seg_Enable(engine_v8_seg);
 //         yolo.Single_Inference(image_color, objs);
-//         k4a.Value_Mask_to_Pcl(cloud, objs);
+//         // k4a.Value_Mask_to_Pcl(cloud, objs);
 //         // realsense.Color_With_Mask(image_color, objs);
 //         // realsense.Depth_With_Mask(image_depth, objs);
 //         // realsense.Dt_Depth_to_Pcl(cloud);
@@ -65,7 +65,7 @@ int main(int argc, char const *argv[])
 
     pthread_create(&thread[0], NULL, Mythread::K4a_Get_Image, &mythread);
     pthread_create(&thread[1], NULL, Mythread::K4a_Seg_to_Pcl, &mythread);
-    // pthread_create(&thread[2], NULL, Mythread::K4a_Pcl_Process, &mythread);
+    pthread_create(&thread[2], NULL, Mythread::K4a_Pcl_Process, &mythread);
     // pthread_create(&thread[4], NULL, Mythread::Rs_Get_Image, &mythread);
     // pthread_create(&thread[5], NULL, Mythread::Rs_Single_Inference_V8, &mythread);
     // pthread_create(&thread[6], NULL, Mythread::Rs_Seg_to_Pcl, &mythread);

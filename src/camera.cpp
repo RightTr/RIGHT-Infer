@@ -56,15 +56,20 @@ void K4a::Configuration()
 
 void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
 {   
-    if(device.get_capture(&capture, chrono::milliseconds(500)));
+    if(device.get_capture(&capture, chrono::milliseconds(100)));
     {    
         image_k4a_color = capture.get_color_image();
         image_k4a_depth = capture.get_depth_image();
         image_k4a_depth_to_color = k4aTransformation.depth_image_to_color_camera(image_k4a_depth);
+        image_k4a_depth_to_pcl = k4aTransformation.depth_image_to_point_cloud(image_k4a_depth, K4A_CALIBRATION_TYPE_DEPTH);
+        image_cv_xyz = cv::Mat(image_k4a_depth_to_pcl.get_height_pixels(), image_k4a_depth_to_pcl.get_width_pixels(), CV_16SC3, 
+                                (void *)image_k4a_depth_to_pcl.get_buffer(), static_cast<size_t>(image_k4a_depth_to_pcl.get_stride_bytes()));
         image_cv_color = cv::Mat(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC4, image_k4a_color.get_buffer());
         cv::cvtColor(image_cv_color, image_cv_color, cv::COLOR_BGRA2BGR);
+
         image_cv_depth = cv::Mat(image_k4a_depth_to_color.get_height_pixels(), image_k4a_depth_to_color.get_width_pixels(), CV_16U, image_k4a_depth_to_color.get_buffer());
         image_cv_depth.convertTo(image_cv_depth, CV_8U);
+        cv::resize(image_cv_xyz, image_cv_xyz, image_cv_depth.size(), 0, 0, cv::INTER_LINEAR);
         // cv::imshow("xyz", image_cv_xyz);
     }
 }
@@ -378,7 +383,7 @@ void K4a::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArra
     uint16_t* depth_data = (uint16_t*)image_k4a_depth_to_color.get_buffer();
     for(auto &obj : objs)
     {
-        for (int v = obj.top; v < obj.bottom; v++)
+        for (int v = obj.top; v < obj.bottom * 0.9 ; v++)
         {
             for (int u = obj.left; u < obj.right; u++) 
             {   
@@ -386,7 +391,7 @@ void K4a::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArra
                 {   
                     float depth_value = static_cast<float>(depth_data[v * image_k4a_depth_to_color.get_width_pixels() + u] / 1000.0);
                     if(depth_value != 0)
-                    {
+                    {   
                         float x = (u - color_intrinsics.intrinsics.parameters.param.cx) * depth_value / color_intrinsics.intrinsics.parameters.param.fx;
                         float y = -(v - color_intrinsics.intrinsics.parameters.param.cy) * depth_value / color_intrinsics.intrinsics.parameters.param.fy;
                         float z = depth_value;

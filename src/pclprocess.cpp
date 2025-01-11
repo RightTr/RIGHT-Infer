@@ -38,18 +38,22 @@ void PclProcess::Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::Point
     ror.setRadiusSearch(radius);       
     ror.setMinNeighborsInRadius(amount);  
     ror.filter(*cloud_ptr);     
-    // std::cout << "Ror PointCloud Size:" << cloud_ptr->size() << std::endl;
+    std::cout << "Ror PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
 void PclProcess::Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
-{
+{   
+    if(cloud_ptr->size() < 200)
+    {
+        return ;
+    }
     pcl::SampleConsensusModelCircle3D<pcl::PointXYZ>::Ptr circle3d(new pcl::SampleConsensusModelCircle3D<pcl::PointXYZ>(cloud_ptr));
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
     pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(circle3d);
     std::vector<int> ransac_inliers; 
     Eigen::VectorXf coeff;
-    ransac.setDistanceThreshold(0.03);							
-	ransac.setMaxIterations(500);								
+    ransac.setDistanceThreshold(0.04);							
+	ransac.setMaxIterations(10000);								
 	ransac.computeModel();
 	ransac.getModelCoefficients(coeff);	
     ransac.getInliers(ransac_inliers);	

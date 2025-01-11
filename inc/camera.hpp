@@ -54,7 +54,7 @@ class K4a
         std::string output_dir = "/home/right/Datasets/Basket/";
         std::string filename;
         int frame_count = 0;
-        cv::Mat image_mask_binary;
+        cv::Mat image_mask_binary, image_cv_xyz;
 
 
     public:
