@@ -65,7 +65,6 @@ void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
         cv::cvtColor(image_cv_color, image_cv_color, cv::COLOR_BGRA2BGR);
         image_cv_depth = cv::Mat(image_k4a_depth_to_color.get_height_pixels(), image_k4a_depth_to_color.get_width_pixels(), CV_16U, image_k4a_depth_to_color.get_buffer());
         image_cv_depth.convertTo(image_cv_depth, CV_8U);
-        // cv::imshow("xyz", image_cv_xyz);
     }
 }
 
@@ -158,7 +157,6 @@ void K4a::Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
     cloud.clear();
     uint16_t* depth_data = (uint16_t*)image_k4a_depth_to_color.get_buffer();
-    TIMESTART
     for (int v = 0; v < image_k4a_depth_to_color.get_height_pixels(); v+=9)
     {
         for (int u = 0; u < image_k4a_depth_to_color.get_width_pixels(); u+=9) 
@@ -173,8 +171,6 @@ void K4a::Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
             }
         }
     }
-    TIMEEND
-    DURATION
     std::cout << "Global PointCloud:" << cloud.size() << std::endl;
     pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 }
