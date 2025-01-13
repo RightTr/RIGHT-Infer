@@ -75,6 +75,7 @@ class K4a
 
         void Save_Image(int amount);
 
+
         K4a();
         
         ~K4a();

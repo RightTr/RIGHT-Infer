@@ -25,37 +25,16 @@
 #define TIMEEND auto End = std::chrono::system_clock::now();
 #define DURATION std::cout << "Duration: " << double(std::chrono::duration_cast<std::chrono::microseconds>(End - Start).count()) * std::chrono::microseconds::period::num / std::chrono::microseconds::period::den << "s" << std::endl;
 
+static int valid;
 
+void Input_PointCloud(std::string &pcd_path, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
 
-class PclProcess   
-{
-    private:
+void Vg_Filter(float leafsize, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
 
-        pcl::VoxelGrid<pcl::PointXYZ> vg;   
-        pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;	
-        pcl::RadiusOutlierRemoval<pcl::PointXYZ> ror;
-        pcl::ExtractIndices<pcl::PointXYZ> extract;
+void Sor_Filter(int amount, float std, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
 
+void Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
 
-    public:
-        void Input_PointCloud(std::string &pcd_path, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
-
-        void Input_PointCloud(pcl::PointCloud<pcl::PointXYZ> &cloud_in);
-
-        void Vg_Filter(float leafsize, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
-
-        void Sor_Filter(int amount, float std, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
-
-        void Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
-
-        void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
-
-
-        PclProcess();
-
-        ~PclProcess();
-
-
-};
+void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr, Eigen::VectorXf &coeff);
 
 #endif

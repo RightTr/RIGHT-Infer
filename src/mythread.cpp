@@ -82,23 +82,17 @@ void* Mythread::K4a_Seg_to_Pcl(void* argc)
 void* Mythread::K4a_Pcl_Process(void* argc)
 {
     Mythread* thread_instance = static_cast<Mythread*>(argc);
-
+    Eigen::VectorXf coeff;
+    sleep(1);
     while(1)
     {
         pthread_mutex_lock(&mutex_k4a);
         *(cloud_seg_ptr_) = *(thread_instance->cloud_seg_ptr);
         pthread_mutex_unlock(&mutex_k4a);
-        thread_instance->pclprocess->Vg_Filter(0.01, cloud_seg_ptr_);
-        thread_instance->pclprocess->Sor_Filter(50, 0.01, cloud_seg_ptr_);
-        thread_instance->pclprocess->Ror_Filter(35, 0.15, cloud_seg_ptr_);
-        pcl::compute3DCentroid(*(cloud_seg_ptr_), *(thread_instance->centroid));
-
-        std::cout << "x:" << thread_instance->centroid->x() 
-                << ",y:" << thread_instance->centroid->y() 
-                << ",z:" << thread_instance->centroid->z() << std::endl;
-
-        pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output_opt.ply", *cloud_seg_ptr_);    
-        usleep(100);
+        Vg_Filter(0.06, cloud_seg_ptr_);
+        Sor_Filter(50, 0.01, cloud_seg_ptr_);
+        Circle_Extract(cloud_seg_ptr_, coeff);
+        usleep(1000);
     }
     pthread_exit(NULL); 
 }
@@ -184,7 +178,6 @@ Mythread::Mythread()
 {
     k4a = new K4a;
     yolo = new Yolo;
-    pclprocess = new PclProcess;
     // realsense = new RealSense;
 }
 
@@ -192,6 +185,5 @@ Mythread::~Mythread()
 {
     delete k4a;
     delete yolo;
-    delete pclprocess;
     // delete realsense;
 }

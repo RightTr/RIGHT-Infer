@@ -70,7 +70,6 @@ void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
 
 void K4a::Save_Image(int amount)
 {   
-
     if(device.get_capture(&capture, chrono::milliseconds(100)) && frame_count < amount)
     {
         image_k4a_color = capture.get_color_image();
@@ -92,8 +91,6 @@ void K4a::Save_Image(int amount)
         image_saved.release();
         usleep(500000);
     }
-
-
 }
 
 void K4a::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray &objs)
@@ -172,20 +169,28 @@ void K4a::Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
         }
     }
     std::cout << "Global PointCloud:" << cloud.size() << std::endl;
-    pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 }
 
 void K4a::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArray &objs)
 {
     cloud.clear();
+    std::vector<cv::Mat> channels;
     uint16_t* depth_data = (uint16_t*)image_k4a_depth_to_color.get_buffer();
+    cv::Scalar orange_low(5, 50, 50);  
+    cv::Scalar orange_high(180, 180, 190);
+    cv::Mat mask_orange;
+    cv::Mat image_cv_orange = cv::Mat(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC4, image_k4a_color.get_buffer());
+    cv::cvtColor(image_cv_orange, image_cv_orange, cv::COLOR_BGR2HSV);
+    cv::split(image_cv_orange, channels);
+    cv::inRange(image_cv_orange, orange_low, orange_high, mask_orange);
+    cv::imshow("Orange Mask", mask_orange);
     for(auto &obj : objs)
     {
-        for (int v = obj.top; v < obj.bottom; v++)
+        for (int v = obj.top; v < obj.top + 4 * obj.seg->height; v+=2)
         {
-            for (int u = obj.left; u < obj.right; u++) 
+            for (int u = obj.left; u < obj.right; u+=2) 
             {   
-                if(obj.seg->data[u, v] == 0)
+                if(obj.seg->data[u, v] == 0 && mask_orange.at<uchar>(u, v) == 0)
                 {   
                     float depth_value = static_cast<float>(depth_data[v * image_k4a_depth_to_color.get_width_pixels() + u] / 1000.0);
                     if(depth_value != 0)
@@ -199,8 +204,7 @@ void K4a::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArra
             }
         }
     }
-    std::cout << "Global PointCloud:" << cloud.size() << std::endl;
-    pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
+    std::cout << "Mask PointCloud:" << cloud.size() << std::endl;
 }
 
 K4a::K4a()
