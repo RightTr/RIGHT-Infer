@@ -7,16 +7,16 @@ int main(int argc, char const *argv[])
     // pcl::PointXYZRGB centroidPoint;
     pcl::visualization::CloudViewer viewer("Basket Cloud Viewer");
     std::string pcd_path = "/home/right/RIGHT-Infer/workspace/pcl/basket_cloud/basket2.ply";
-    // std::string pcd_path = "/home/right/RIGHT-Infer/workspace/pcl/output.ply";
+    // std::string pcd_path = "/home/right/RIGHT-Infer/workspace/pcl/output_opt.ply";
     // Eigen::Vector4f centroid;
 
     PclProcess pclprocess;
     pclprocess.Input_PointCloud(pcd_path, pointcloud);
     TIMESTART
-    // pclprocess.Vg_Filter(0.02, pointcloud); 
-    // pclprocess.Sor_Filter(50, 0.01, pointcloud);
-    // pclprocess.Ror_Filter(15, 0.1, pointcloud);
-    pclprocess.Circle_Extract(pointcloud);
+    pclprocess.Vg_Filter(0.04, pointcloud); 
+    pclprocess.Sor_Filter(50, 0.01, pointcloud);
+    pclprocess.Ror_Filter(4, 0.1, pointcloud);
+    // pclprocess.Circle_Extract(pointcloud);
     TIMEEND
     DURATION
     // pcl::compute3DCentroid(*pointcloud, centroid);

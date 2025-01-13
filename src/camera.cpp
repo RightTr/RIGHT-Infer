@@ -189,7 +189,7 @@ void K4a::Mask_to_Binary(yolo::BoxArray &objs)
         if (obj.seg) 
         {
             if(obj.left >=0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_mask_binary.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_mask_binary.rows)
-            {
+            { 
                 cv::Mat mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
                 mask.convertTo(mask, CV_8UC1);
                 cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR);  
