@@ -263,7 +263,6 @@ void K4a::Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
     cloud.clear();
     uint16_t* depth_data = (uint16_t*)image_k4a_depth_to_color.get_buffer();
-    TIMESTART
     for (int v = 0; v < image_k4a_depth_to_color.get_height_pixels(); v+=9)
     {
         for (int u = 0; u < image_k4a_depth_to_color.get_width_pixels(); u+=9) 
@@ -278,10 +277,7 @@ void K4a::Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
             }
         }
     }
-    TIMEEND
-    DURATION
     std::cout << "Global PointCloud:" << cloud.size() << std::endl;
-    pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 }
 
 void K4a::K4a_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
@@ -383,7 +379,7 @@ void K4a::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArra
     uint16_t* depth_data = (uint16_t*)image_k4a_depth_to_color.get_buffer();
     for(auto &obj : objs)
     {
-        for (int v = obj.top; v < obj.bottom * 0.9 ; v++)
+        for (int v = obj.top; v < obj.bottom + obj.seg->height; v++)
         {
             for (int u = obj.left; u < obj.right; u++) 
             {   
@@ -402,7 +398,6 @@ void K4a::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArra
         }
     }
     std::cout << "Global PointCloud:" << cloud.size() << std::endl;
-    pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output.ply", cloud);
 }
 
 K4a::K4a()
@@ -570,9 +565,9 @@ void RealSense::Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
     cloud.clear();
     rs2::depth_frame frame_depth = frameset.get_depth_frame(); 
-    for(int u = 0; u < frame_depth.get_width(); u+=14)
+    for(int u = 0; u < frame_depth.get_width(); u+=10)
     {
-        for(int v = 0; v < frame_depth.get_height(); v+=14)
+        for(int v = 0; v < frame_depth.get_height(); v+=10)
         {
             float depth_value = frame_depth.get_distance(u, v);
             if(depth_value != 0)

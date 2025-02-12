@@ -1,6 +1,6 @@
 #include "pclprocess.hpp"
 
-void PclProcess::Input_PointCloud(std::string &pcd_path, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+void Input_PointCloud(std::string &pcd_path, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
     if (pcl::io::loadPLYFile<pcl::PointXYZ>(pcd_path, *cloud_ptr) == -1) 
     {
@@ -13,17 +13,18 @@ void PclProcess::Input_PointCloud(std::string &pcd_path, pcl::PointCloud<pcl::Po
     }
 }
 
-void PclProcess::Vg_Filter(float leafsize, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+void Vg_Filter(float leafsize, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
+    pcl::VoxelGrid<pcl::PointXYZ> vg;   
     vg.setInputCloud(cloud_ptr);
     vg.setLeafSize(leafsize, leafsize, leafsize);
     vg.filter(*cloud_ptr);
     // std::cout << "Vg PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
-void PclProcess::Sor_Filter(int amount, float std, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+void Sor_Filter(int amount, float std, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
-    
+    pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;	
     sor.setInputCloud(cloud_ptr);							
     sor.setMeanK(amount);										
     sor.setStddevMulThresh(std);
@@ -31,9 +32,9 @@ void PclProcess::Sor_Filter(int amount, float std, pcl::PointCloud<pcl::PointXYZ
     // std::cout << "Sor PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
-void PclProcess::Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+void Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
-    
+    pcl::RadiusOutlierRemoval<pcl::PointXYZ> ror;
     ror.setInputCloud(cloud_ptr);        
     ror.setRadiusSearch(radius);       
     ror.setMinNeighborsInRadius(amount);  
@@ -41,12 +42,17 @@ void PclProcess::Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::Point
     std::cout << "Ror PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
-void PclProcess::Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {   
+    
     if(cloud_ptr->size() < 200)
     {
         return ;
     }
+    pcl::ExtractIndices<pcl::PointXYZ> extract;
+    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
+    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree;
+    pcl::SACSegmentationFromNormals<pcl::PointXYZ,pcl::Normal> seg;
     pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
@@ -74,16 +80,8 @@ void PclProcess::Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
                 ",z:" << coeff.at(0).values[2] << ",r:" << coeff.at(0).values[3] <<
                 ",ex:"<< coeff.at(0).values[4] << ",ey:" << coeff.at(0).values[5]<< 
                 ",ez" << coeff.at(0).values[6] << std::endl;  
-}
-
-
-PclProcess::PclProcess()
-{
-
-}
-
-PclProcess::~PclProcess()
-{
-
-  
+    if(coeff.at(0).values[3] > 0.23 && coeff.at(0).values[3] < 0.24)
+    {
+        std::cout << "Valid Extract:" << valid++ << std::endl;
+    }
 }

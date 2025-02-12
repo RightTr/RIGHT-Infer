@@ -19,7 +19,6 @@ class Mythread
     private:
         K4a* k4a;
         Yolo* yolo;
-        PclProcess* pclprocess;
         RealSense* realsense;
         std::shared_ptr<std::string> engine_v8_ptr = std::make_shared<std::string>("/home/right/RIGHT-Infer/workspace/best.transd.engine"); 
         std::shared_ptr<std::string> engine_v8_seg_ptr = std::make_shared<std::string>("/home/right/RIGHT-Infer/workspace/best_seg.transd.engine"); 

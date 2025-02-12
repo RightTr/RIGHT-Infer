@@ -89,10 +89,10 @@ void* Mythread::K4a_Pcl_Process(void* argc)
         *(cloud_seg_ptr_) = *(thread_instance->cloud_seg_ptr);
         pthread_mutex_unlock(&mutex_k4a);
         TIMESTART
-        // thread_instance->pclprocess->Vg_Filter(0.03, cloud_seg_ptr_);
-        // thread_instance->pclprocess->Sor_Filter(50, 0.01, cloud_seg_ptr_);
-        // thread_instance->pclprocess->Ror_Filter(15, 0.1, cloud_seg_ptr_);
-        // thread_instance->pclprocess->Circle_Extract(cloud_seg_ptr_);
+        Vg_Filter(0.03, cloud_seg_ptr_);
+        Sor_Filter(50, 0.01, cloud_seg_ptr_);
+        Ror_Filter(15, 0.1, cloud_seg_ptr_);
+        Circle_Extract(cloud_seg_ptr_);
         TIMEEND
         DURATION
         pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/workspace/pcl/output_opt.ply", *cloud_seg_ptr_);    
@@ -180,16 +180,14 @@ void* Mythread::Rs_Seg_to_Pcl(void* argc)
 
 Mythread::Mythread()
 {
-    k4a = new K4a;
+    // k4a = new K4a;
     yolo = new Yolo;
-    pclprocess = new PclProcess;
-    // realsense = new RealSense;
+    realsense = new RealSense;
 }
 
 Mythread::~Mythread()
 {
-    delete k4a;
+    // delete k4a;
     delete yolo;
-    delete pclprocess;
-    // delete realsense;
+    delete realsense;
 }
