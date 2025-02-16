@@ -44,7 +44,7 @@ void Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cl
 
 void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr, Eigen::VectorXf &coeff)
 {   
-    if(cloud_ptr->empty())
+    if(cloud_ptr->size() < 50)
     {
         return ;
     }
