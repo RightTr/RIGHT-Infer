@@ -19,7 +19,6 @@ class Mythread
     private:
         K4a* k4a;
         Yolo* yolo;
-        RealSense* realsense;
         std::shared_ptr<std::string> engine_v8_ptr = std::make_shared<std::string>("/home/right/RIGHT-Infer/workspace/best.transd.engine"); 
         std::shared_ptr<std::string> engine_v8_seg_ptr = std::make_shared<std::string>("/home/right/RIGHT-Infer/workspace/best_seg.transd.engine"); 
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_seg_ptr = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(); 
@@ -39,12 +38,6 @@ class Mythread
         static void* K4a_Seg_to_Pcl(void* argc);
 
         static void* K4a_Pcl_Process(void* argc);
-
-        static void* Rs_Get_Image(void* argc);
-
-        static void* Rs_Single_Inference_V8(void* argc);
-
-        static void* Rs_Seg_to_Pcl(void* argc);
 
         Mythread();
 

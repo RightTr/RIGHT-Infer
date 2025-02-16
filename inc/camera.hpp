@@ -9,8 +9,7 @@
 #include <pcl/io/ply_io.h>
 
 #include <k4a/k4a.hpp>
-#include <librealsense2/rs.hpp>
-#include <librealsense2/rsutil.h>
+
 
 
 #include <iostream>
@@ -79,43 +78,6 @@ class K4a
         K4a();
         
         ~K4a();
-};
-
-class RealSense
-{
-    private:
-        rs2::pipeline pipe;
-        rs2::config cfg;
-        rs2::pipeline_profile profile;
-        rs2::frameset frameset;
-        rs2::video_stream_profile depth_profile;
-        rs2_intrinsics intrinsics_depth;
-        rs2_intrinsics intrinsics_color;
-        cv::Mat image_rs_color, image_rs_depth;
-        cv::Mat mask;
-        rs2::pointcloud pointcloud_rs;
-        rs2::points points;
-
-    public:
-        void Configuration();
-        
-        void Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth);
-
-        void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs);
-
-        void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs);
-
-        void Rs_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
-
-        void Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
-
-        void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
-
-        RealSense();
-
-        ~RealSense();
-
-
 };
 
 #endif
