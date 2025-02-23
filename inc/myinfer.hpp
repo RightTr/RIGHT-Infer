@@ -27,6 +27,7 @@ class Yolo
 
     yolo::Image cvimg(const cv::Mat &image);
 
+    bool load_flag = 0;
 
     public:   
         
@@ -34,6 +35,7 @@ class Yolo
         void Yolov8_Enable(std::string &engine_);
 
         void Yolov8_Seg_Enable(std::string &engine_seg);
+
 
         void Single_Inference(std::string path);
 
