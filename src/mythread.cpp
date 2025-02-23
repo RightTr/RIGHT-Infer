@@ -90,7 +90,7 @@ void* Mythread::K4a_Pcl_Process(void* argc)
         pthread_mutex_unlock(&mutex_k4a);
         Vg_Filter(0.06, cloud_seg_ptr_);
         Sor_Filter(50, 0.01, cloud_seg_ptr_);
-        Circle_Extract(cloud_seg_ptr_, coeff);/
+        Circle_Extract(cloud_seg_ptr_, coeff);
         usleep(1000);
     }
     pthread_exit(NULL); 

@@ -1,7 +1,6 @@
 #include "camera.hpp"
 #include "myinfer.hpp"
 #include "pclprocess.hpp"
-#include "queue.hpp"
 #include "mythread.hpp"
 
 

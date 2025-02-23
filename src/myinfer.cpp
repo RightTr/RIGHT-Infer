@@ -159,7 +159,12 @@ void Yolo::Single_Inference(cv::Mat &image, yolo::BoxArray &objs_out)
 {
   auto Start = std::chrono::system_clock::now();
 
-  auto yolo = yolo::load(engine, type);
+  std::shared_ptr<yolo::Infer> yolo;
+  if(!load_flag)
+  {
+    yolo = yolo::load(engine, type);
+    load_flag = 1;
+  }
   if (yolo == nullptr) return;
 
   auto objs = yolo->forward(cvimg(image));

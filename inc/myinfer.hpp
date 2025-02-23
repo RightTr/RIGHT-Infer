@@ -20,13 +20,10 @@ static const char *labels[] = {
 class Yolo
 {
     private:
-
-    std::string engine;
-
-    yolo::Type type;
-
-    yolo::Image cvimg(const cv::Mat &image);
-
+        std::string engine;
+        yolo::Type type;
+        yolo::Image cvimg(const cv::Mat &image);
+        bool load_flag = 0;
 
     public:   
         

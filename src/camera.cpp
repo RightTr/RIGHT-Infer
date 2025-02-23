@@ -180,19 +180,16 @@ void K4a::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArra
         for (int v = obj.top; v < obj.top + 4 * obj.seg->height; v+=2)
         {
             for (int u = obj.left; u < obj.right; u+=2) 
-            {   
-                if(obj.seg->data[u, v] == 0 && mask_orange.at<uchar>(u, v) == 0)
-                {   
-                    if(u < image_k4a_depth_to_color.get_width_pixels() && v < image_k4a_depth_to_color.get_height_pixels())
+            {     
+                if(u < image_k4a_depth_to_color.get_width_pixels() && v < image_k4a_depth_to_color.get_height_pixels())
+                {
+                    float depth_value = static_cast<float>(depth_data[v * image_k4a_depth_to_color.get_width_pixels() + u] / 1000.0);
+                    if(depth_value != 0)
                     {
-                        float depth_value = static_cast<float>(depth_data[v * image_k4a_depth_to_color.get_width_pixels() + u] / 1000.0);
-                        if(depth_value != 0)
-                        {
-                            float x = (u - color_intrinsics.intrinsics.parameters.param.cx) * depth_value / color_intrinsics.intrinsics.parameters.param.fx;
-                            float y = (v - color_intrinsics.intrinsics.parameters.param.cy) * depth_value / color_intrinsics.intrinsics.parameters.param.fy;
-                            float z = depth_value;
-                            cloud.push_back(pcl::PointXYZ(x, y ,z));
-                        }
+                        float x = (u - color_intrinsics.intrinsics.parameters.param.cx) * depth_value / color_intrinsics.intrinsics.parameters.param.fx;
+                        float y = (v - color_intrinsics.intrinsics.parameters.param.cy) * depth_value / color_intrinsics.intrinsics.parameters.param.fy;
+                        float z = depth_value;
+                        cloud.push_back(pcl::PointXYZ(x, y ,z));
                     }
                 }
             }

@@ -8,7 +8,7 @@
 #include "camera.hpp"
 #include "myinfer.hpp"
 #include "pclprocess.hpp"
-#include "queue.hpp"
+
 
 static pthread_mutex_t mutex_k4a = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mutex_rs = PTHREAD_MUTEX_INITIALIZER;

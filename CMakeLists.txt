@@ -25,7 +25,7 @@ include_directories(
 
 
 add_executable(infer src/main.cpp src/camera.cpp src/myinfer.cpp 
-                    src/pclprocess.cpp src/queue.cpp src/mythread.cpp
+                    src/pclprocess.cpp src/mythread.cpp
                     src/uart.cpp)
 
 
