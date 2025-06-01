@@ -14,6 +14,7 @@ find_package(k4a REQUIRED)
 find_package(PCL 1.13 REQUIRED)
 find_package(realsense2 REQUIRED)
 
+link_directories(/usr/local/cuda/lib64)
 
 include_directories(
     inc
@@ -21,15 +22,26 @@ include_directories(
     ${PCL_INCLUDE_DIRS}/include
 )
 
-
-
-
-add_executable(infer src/main.cpp src/camera.cpp src/myinfer.cpp 
-                    src/pclprocess.cpp src/queue.cpp src/mythread.cpp
+add_executable(k4a_process src/k4a_process.cpp src/camera.cpp src/myinfer.cpp 
+                    src/process_all_in_one.cpp src/queue.cpp src/mythread.cpp
                     src/uart.cpp)
 
+target_link_libraries(k4a_process 
+    ${OpenCV_LIBS}
+    ${PCL_LIBRARIES}
+    k4a
+    /home/right/RIGHT-Infer/lib/libyolo.a
+    cuda cublas cudart cudnn
+    ${TENSORRT_DIR}/lib/libnvinfer.so
+    Threads::Threads
+    realsense2::realsense2
+)
 
-target_link_libraries(infer 
+add_executable(rs_process src/rs_process.cpp src/camera.cpp src/myinfer.cpp 
+                    src/process_all_in_one.cpp src/queue.cpp src/mythread.cpp
+                    src/uart.cpp)
+
+target_link_libraries(rs_process 
     ${OpenCV_LIBS}
     ${PCL_LIBRARIES}
     k4a

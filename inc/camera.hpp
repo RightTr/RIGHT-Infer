@@ -45,8 +45,7 @@ class K4a
         k4a::capture capture;
         int device_count;
         k4a::image image_k4a_color, image_k4a_depth, image_k4a_infrared;
-        k4a::image image_k4a_depth_to_color, image_k4a_depth_to_pcl;
-        // k4a_calibration_t calibration;
+        k4a::image image_k4a_depth_to_color;
         k4a_calibration_camera_t depth_intrinsics;
         k4a_calibration_camera_t color_intrinsics;
         k4a::calibration k4aCalibration;
@@ -54,7 +53,6 @@ class K4a
         std::string output_dir = "/home/right/Datasets/Basket/";
         std::string filename;
         int frame_count = 0;
-
 
     public:
         void Open();   
@@ -64,6 +62,10 @@ class K4a
         void Configuration();
 
         void Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth);
+
+        void Color_to_Cv(cv::Mat &image_cv_color);
+
+        void Depth_to_Cv(cv::Mat &image_cv_depth);
 
         void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray &objs);
 
@@ -75,10 +77,20 @@ class K4a
 
         void Save_Image(int amount);
 
-
-        K4a();
+        K4a()
+        {
+            Installed_Count();
+            Open();
+            Configuration();
+        }
         
-        ~K4a();
+        ~K4a()
+        {
+            image_k4a_depth.reset();
+            image_k4a_color.reset();
+            capture.reset();
+            device.close();
+        }
 };
 
 class RealSense
@@ -101,6 +113,8 @@ class RealSense
         
         void Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth);
 
+        void Color_to_Cv(cv::Mat &image_cv_color);
+
         void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs);
 
         void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs);
@@ -111,9 +125,15 @@ class RealSense
 
         void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
-        RealSense();
+        RealSense()
+        {
+            Configuration();
+        }
 
-        ~RealSense();
+        ~RealSense()
+        {
+
+        }
 
 
 };

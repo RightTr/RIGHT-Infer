@@ -7,11 +7,12 @@
 #include <chrono>
 #include "camera.hpp"
 #include "myinfer.hpp"
-#include "pclprocess.hpp"
+#include "process_all_in_one.hpp"
 
-
-static pthread_mutex_t mutex_k4a = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t mutex_rs = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutex_k4a_color = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t cond_show = PTHREAD_COND_INITIALIZER;
+static bool show_ready = false;
+static bool depth_request = false;
 static pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_seg_ptr_ = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(); 
 
 class Mythread
@@ -19,36 +20,37 @@ class Mythread
     private:
         K4a* k4a;
         Yolo* yolo;
-        RealSense* realsense;
-        std::shared_ptr<std::string> engine_v8_ptr = std::make_shared<std::string>("/home/right/RIGHT-Infer/workspace/best.transd.engine"); 
-        std::shared_ptr<std::string> engine_v8_seg_ptr = std::make_shared<std::string>("/home/right/RIGHT-Infer/workspace/best_seg.transd.engine"); 
+        std::string engine_v8 = "/home/right/RIGHT-Infer/workspace/best.engine"; 
+        std::string engine_v8_seg= "/home/right/RIGHT-Infer/workspace/Basket/best.engine"; 
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_seg_ptr = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(); 
         std::shared_ptr<Eigen::Vector4f> centroid = std::make_shared<Eigen::Vector4f>();
-        std::shared_ptr<cv::Mat> color_k4a_ptr = std::make_shared<cv::Mat>();
-        std::shared_ptr<cv::Mat> depth_k4a_ptr = std::make_shared<cv::Mat>();
-        std::shared_ptr<cv::Mat> color_rs_ptr = std::make_shared<cv::Mat>();
-        std::shared_ptr<cv::Mat> depth_rs_ptr = std::make_shared<cv::Mat>();
+        std::shared_ptr<cv::Mat> color_ptr = std::make_shared<cv::Mat>();
+        std::shared_ptr<cv::Mat> depth_ptr = std::make_shared<cv::Mat>();
         std::shared_ptr<yolo::BoxArray> objs_ptr = std::make_shared<yolo::BoxArray>();
 
     public: 
 
-        static void* K4a_Get_Image(void* argc);
+        static void* K4a_Single_Inference_V8_Seg(void* argc); 
 
-        static void* K4a_Single_Inference_V8(void* argc); 
+        static void* K4a_Image_Show(void* argc);
+
+        static void* K4a_Depth_Get(void* argc);
 
         static void* K4a_Seg_to_Pcl(void* argc);
 
         static void* K4a_Pcl_Process(void* argc);
 
-        static void* Rs_Get_Image(void* argc);
+        Mythread()
+        {
+            k4a = new K4a;
+            yolo= new Yolo;
+        }
 
-        static void* Rs_Single_Inference_V8(void* argc);
-
-        static void* Rs_Seg_to_Pcl(void* argc);
-
-        Mythread();
-
-        ~Mythread();
+        ~Mythread()
+        {
+            delete k4a;
+            delete yolo;
+        }
 
 
 };

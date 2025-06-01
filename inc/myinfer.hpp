@@ -9,10 +9,6 @@
 
 #include <chrono>
 
-
-// void batch_inference();
-// void perf();
-
 static const char *labels[] = {
     "Basket"
 };
@@ -23,7 +19,8 @@ class Yolo
         std::string engine;
         yolo::Type type;
         yolo::Image cvimg(const cv::Mat &image);
-        bool load_flag = 0;
+        bool load_flag;
+        std::shared_ptr<yolo::Infer> yolo;
 
     public:   
         

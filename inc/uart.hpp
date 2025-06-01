@@ -25,7 +25,6 @@
 #define RXTAIL1 0xAA
 #define RXTAIL2 0xDD
 
-
 namespace com{
 
 class UART

@@ -41,8 +41,8 @@ def process_video(video_path, model):
 
 if __name__ == "__main__":
 
-    weight_path = '/home/right/Infer/workspace/best_seg.pt'  
-    video_path = '/home/right/Infer/workspace/video.mp4'  
+    weight_path = '/home/right/RIGHT-Infer/workspace/Basket/best.pt'  
+    video_path = '/home/right/RIGHT-Infer/workspace/video.mp4'  
 
     model = load_model(weight_path)
 

@@ -82,18 +82,14 @@ success = model.export(format="onnx", dynamic=True, simplify=True)
 
 4、进入TensoRT路径，生成engine文件
 
-* 进入/home/right/third-party/TensorRT-8.6.1.6/targets/x86_64-linux-gnu/bin
+* 进入TensorRT-8.6.1.6/targets/x86_64-linux-gnu/bin
 
 * 使用trtexec将onnx文件进行转换  
 
     记得取消换行
 
 ```bash
-./trtexec --onnx=best.onnx
---minShapes=images:1x3x640x640
---maxShapes=images:16x3x640x640
---optShapes=images:1x3x640x640
---saveEngine=best.transd.engine
+./trtexec --onnx=best.onnx --saveEngine=best.engine
 ```
 
 </details>
@@ -164,13 +160,12 @@ success = model.export(format="onnx", dynamic=True, simplify=True)
 
 4、进入TensoRT路径，生成engine文件
 
-* 进入/home/right/third-party/TensorRT-8.6.1.6/targets/x86_64-linux-gnu/bin
+* 进入TensorRT-8.6.1.6/targets/x86_64-linux-gnu/bin
 
 * 使用trtexec将onnx文件进行转换  
 
     记得取消换行
 
 ```bash
-./trtexec --onnx=best_seg.onnx
---saveEngine=best_seg.transd.engine
+./trtexec --onnx=best_seg.onnx --saveEngine=best_seg.transd.engine
 ```

@@ -1,5 +1,11 @@
 build
+
 .vscode
+
 datasets
-yolo11n.pt
+
 runs
+
+workspace/model_past
+
+yolo11n.pt
