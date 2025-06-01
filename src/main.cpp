@@ -11,12 +11,8 @@
 //     Yolo yolo;
 //     // std::string engine_v8 = "/home/right/RIGHT-Infer/workspace/best.transd.engine"; 
 //     std::string engine_v8_seg = "/home/right/RIGHT-Infer/workspace/best_seg.transd.engine";
-
 //     yolo::BoxArray objs;
-
-//     // pcl::PointCloud<pcl::PointXYZ> cloud_seg;
 //     pcl::PointCloud<pcl::PointXYZ> cloud;
-
 //     cv::Mat image_color, image_depth;
 //     int index = 0;
 
@@ -45,7 +41,6 @@
 //         if (cv::waitKey(1) == 27) break;
 
 //     }
-
 //     return 0;
 // }
 
@@ -56,8 +51,8 @@ int main(int argc, char const *argv[])
     pthread_t thread[8] = {0};
 
     pthread_create(&thread[0], NULL, Mythread::K4a_Get_Image, &mythread);
-    pthread_create(&thread[1], NULL, Mythread::K4a_Seg_to_Pcl, &mythread);
-    pthread_create(&thread[2], NULL, Mythread::K4a_Pcl_Process, &mythread);
+    // pthread_create(&thread[1], NULL, Mythread::K4a_Seg_to_Pcl, &mythread);
+    // pthread_create(&thread[2], NULL, Mythread::K4a_Pcl_Process, &mythread);
     // pthread_create(&thread[4], NULL, Mythread::Rs_Get_Image, &mythread);
     // pthread_create(&thread[5], NULL, Mythread::Rs_Single_Inference_V8, &mythread);
     // pthread_create(&thread[6], NULL, Mythread::Rs_Seg_to_Pcl, &mythread);

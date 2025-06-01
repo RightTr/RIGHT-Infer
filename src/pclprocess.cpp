@@ -14,7 +14,7 @@ void Input_PointCloud(std::string &pcd_path, pcl::PointCloud<pcl::PointXYZ>::Ptr
 }
 
 void Vg_Filter(float leafsize, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
-{   
+{
     pcl::VoxelGrid<pcl::PointXYZ> vg;   
     vg.setInputCloud(cloud_ptr);
     vg.setLeafSize(leafsize, leafsize, leafsize);
@@ -39,36 +39,49 @@ void Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cl
     ror.setRadiusSearch(radius);       
     ror.setMinNeighborsInRadius(amount);  
     ror.filter(*cloud_ptr);     
-    // std::cout << "Ror PointCloud Size:" << cloud_ptr->size() << std::endl;
+    std::cout << "Ror PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
-void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr, Eigen::VectorXf &coeff)
+void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {   
-    if(cloud_ptr->size() < 50)
+    
+    if(cloud_ptr->size() < 200)
     {
         return ;
     }
     pcl::ExtractIndices<pcl::PointXYZ> extract;
-    pcl::SampleConsensusModelCircle3D<pcl::PointXYZ>::Ptr circle3d(new pcl::SampleConsensusModelCircle3D<pcl::PointXYZ>(cloud_ptr));
+    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
+    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree;
+    pcl::SACSegmentationFromNormals<pcl::PointXYZ,pcl::Normal> seg;
+    pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
-    pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(circle3d);
-    std::vector<int> ransac_inliers; 
-    ransac.setDistanceThreshold(0.04);							
-	ransac.setMaxIterations(1000);								
-	ransac.computeModel();
-	ransac.getModelCoefficients(coeff);	
-    ransac.getInliers(ransac_inliers);	
-    inliers->indices = ransac_inliers;
-    extract.setInputCloud(cloud_ptr); 
-    extract.setIndices(inliers); 
-    extract.setNegative(false); 
-    extract.filter(*cloud_ptr);					                            
-    std::cout << cloud_ptr->size() << std::endl;
-    std::cout << "x:" << coeff[0] << ",y:" << coeff[1] << ",z:" << coeff[2] << ",r=" << coeff[3] 
-	     	<< ",ex:" << coeff[4] << ",ey:" << coeff[5] << ",ez:" << coeff[6] << std::endl;
-    // if(coeff[3] < 0.24 && coeff[3] > 0.19)
-    // {
-    //     valid++;
-    //     std::cout << "Valid Extract:" << valid << std::endl;
-    // }
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+    std::vector<pcl::ModelCoefficients> coeff;
+    ne.setInputCloud(cloud_ptr);
+    ne.setSearchMethod(tree);
+    ne.setRadiusSearch(0.01);
+    ne.compute(*normals);
+    seg.setOptimizeCoefficients(true);
+    seg.setModelType(pcl::SACMODEL_CIRCLE3D);
+    seg.setMethodType(pcl::SAC_RANSAC);
+    // seg.setNormalDistanceWeight(0.001);
+    seg.setMaxIterations(10000);
+    seg.setDistanceThreshold(0.05);
+    seg.setRadiusLimits(0.23, 0.24);
+    seg.setInputNormals(normals);
+    seg.setInputCloud(cloud_ptr);
+    seg.segment(*inliers, *coefficients);
+    extract.setInputCloud(cloud_ptr);
+    extract.setIndices(inliers);
+    extract.setNegative(false);
+    extract.filter(*cloud_ptr);
+    coeff.push_back(*coefficients); 
+    std::cout << "x:"<< coeff.at(0).values[0] << ",y:" << coeff.at(0).values[1] << 
+                ",z:" << coeff.at(0).values[2] << ",r:" << coeff.at(0).values[3] <<
+                ",ex:"<< coeff.at(0).values[4] << ",ey:" << coeff.at(0).values[5]<< 
+                ",ez" << coeff.at(0).values[6] << std::endl;  
+    if(coeff.at(0).values[3] > 0.23 && coeff.at(0).values[3] < 0.24)
+    {
+        std::cout << "Valid Extract:" << valid++ << std::endl;
+    }
 }

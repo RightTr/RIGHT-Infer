@@ -45,7 +45,7 @@ class K4a
         k4a::capture capture;
         int device_count;
         k4a::image image_k4a_color, image_k4a_depth, image_k4a_infrared;
-        k4a::image image_k4a_depth_to_color;
+        k4a::image image_k4a_depth_to_color, image_k4a_depth_to_pcl;
         // k4a_calibration_t calibration;
         k4a_calibration_camera_t depth_intrinsics;
         k4a_calibration_camera_t color_intrinsics;

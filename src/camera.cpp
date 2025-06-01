@@ -56,13 +56,17 @@ void K4a::Configuration()
 
 void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
 {   
-    if(device.get_capture(&capture, chrono::milliseconds(500)));
+    if(device.get_capture(&capture, chrono::milliseconds(100)));
     {    
         image_k4a_color = capture.get_color_image();
         image_k4a_depth = capture.get_depth_image();
         image_k4a_depth_to_color = k4aTransformation.depth_image_to_color_camera(image_k4a_depth);
+        image_k4a_depth_to_pcl = k4aTransformation.depth_image_to_point_cloud(image_k4a_depth, K4A_CALIBRATION_TYPE_DEPTH);
+        image_cv_xyz = cv::Mat(image_k4a_depth_to_pcl.get_height_pixels(), image_k4a_depth_to_pcl.get_width_pixels(), CV_16SC3, 
+                                (void *)image_k4a_depth_to_pcl.get_buffer(), static_cast<size_t>(image_k4a_depth_to_pcl.get_stride_bytes()));
         image_cv_color = cv::Mat(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC4, image_k4a_color.get_buffer());
         cv::cvtColor(image_cv_color, image_cv_color, cv::COLOR_BGRA2BGR);
+
         image_cv_depth = cv::Mat(image_k4a_depth_to_color.get_height_pixels(), image_k4a_depth_to_color.get_width_pixels(), CV_16U, image_k4a_depth_to_color.get_buffer());
         image_cv_depth.convertTo(image_cv_depth, CV_8U);
     }
@@ -185,7 +189,7 @@ void K4a::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArra
                 {
                     float depth_value = static_cast<float>(depth_data[v * image_k4a_depth_to_color.get_width_pixels() + u] / 1000.0);
                     if(depth_value != 0)
-                    {
+                    {   
                         float x = (u - color_intrinsics.intrinsics.parameters.param.cx) * depth_value / color_intrinsics.intrinsics.parameters.param.fx;
                         float y = (v - color_intrinsics.intrinsics.parameters.param.cy) * depth_value / color_intrinsics.intrinsics.parameters.param.fy;
                         float z = depth_value;
@@ -325,9 +329,9 @@ void RealSense::Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
     cloud.clear();
     rs2::depth_frame frame_depth = frameset.get_depth_frame(); 
-    for(int u = 0; u < frame_depth.get_width(); u+=14)
+    for(int u = 0; u < frame_depth.get_width(); u+=10)
     {
-        for(int v = 0; v < frame_depth.get_height(); v+=14)
+        for(int v = 0; v < frame_depth.get_height(); v+=10)
         {
             float depth_value = frame_depth.get_distance(u, v);
             if(depth_value != 0)

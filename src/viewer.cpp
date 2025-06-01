@@ -3,8 +3,6 @@
 int main(int argc, char const *argv[])
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud(new pcl::PointCloud<pcl::PointXYZ>);
-    // pcl::PointCloud<pcl::PointXYZRGB>::Ptr centroidCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-    // pcl::PointXYZRGB centroidPoint;
     pcl::visualization::CloudViewer viewer("Basket Cloud Viewer");
     // std::string pcd_path = "/home/right/RIGHT-Infer/workspace/pcl/basket_cloud/basket2.ply";
     // std::string pcd_path = "/home/right/RIGHT-Infer/workspace/pcl/output.ply";

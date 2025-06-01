@@ -175,14 +175,14 @@ void* Mythread::Rs_Seg_to_Pcl(void* argc)
 
 Mythread::Mythread()
 {
-    k4a = new K4a;
+    // k4a = new K4a;
     yolo = new Yolo;
     // realsense = new RealSense;
 }
 
 Mythread::~Mythread()
 {
-    delete k4a;
+    // delete k4a;
     delete yolo;
     // delete realsense;
 }
