@@ -23,7 +23,7 @@ include_directories(
 )
 
 add_executable(k4a_process src/k4a_process.cpp src/camera.cpp src/myinfer.cpp 
-                    src/process_all_in_one.cpp src/queue.cpp src/mythread.cpp
+                    src/process_all_in_one.cpp src/mythread.cpp
                     src/uart.cpp)
 
 target_link_libraries(k4a_process 
@@ -38,7 +38,7 @@ target_link_libraries(k4a_process
 )
 
 add_executable(rs_process src/rs_process.cpp src/camera.cpp src/myinfer.cpp 
-                    src/process_all_in_one.cpp src/queue.cpp src/mythread.cpp
+                    src/process_all_in_one.cpp src/mythread.cpp
                     src/uart.cpp)
 
 target_link_libraries(rs_process 
