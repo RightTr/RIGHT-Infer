@@ -9,13 +9,15 @@
 
 * 支持YOLOv8、YOLOv8-Seg
   
-* C++接口，多线程
+* C++接口，多线程，双进程，TCP通讯，串口通讯
 
 # 环境配置
 
 本项目依赖于OpenCV、TensorRT、PCL、CUDA库。参考CMakeLists.txt安装相关依赖和指定路径配置。
 
 # 使用方法
+
+## 模型导入
 
 <details>
 <summary>YOLOv8</summary>
@@ -168,4 +170,29 @@ success = model.export(format="onnx", dynamic=True, simplify=True)
 
 ```bash
 ./trtexec --onnx=best_seg.onnx --saveEngine=best_seg.transd.engine
+```
+
+</details>
+
+## 参数修改
+  
+* kinect.yaml
+    * 相机安装位置
+
+    * 点云处理参数
+
+* realsense.yaml
+
+## 运行项目
+
+* 运行Realsense进程，开始60Hz彩色流粗对齐(Coarse Alignment)。使用TCP通讯作为客户端与Kinect进程通讯，控制其线程的工作模式。
+
+```bash
+./rs_process 
+```
+
+* 运行Kinect进程，实现深度信息细对齐(Fine Alignment)。作为TCP服务端，监听Realsense进程，使用串口发送粗对齐或者细对齐的结果。
+  
+```bash
+./k4a_process
 ```
