@@ -79,3 +79,51 @@ void* Mythread::K4a_Pcl_Process(void* argc)
     }
     pthread_exit(NULL); 
 }
+
+void* Mythread::TCP_Server(void* argc)
+{
+    Mythread* thread_instance = static_cast<Mythread*>(argc);
+    uint8_t buf[5] = {0};
+    float pixel_diffx = 0.;
+    bool align_signal = 0;
+    while (1)
+    {
+        TcpSocket* new_tcpsocket = new TcpSocket();
+        if(!thread_instance->tcpsocket_list.Accept(new_tcpsocket))
+        {
+            delete new_tcpsocket;
+            continue; 
+        }
+        else
+        {
+            cout << "Connection built!" << endl;
+        }
+        pthread_t tid;
+        pthread_create(&tid, nullptr, TCP_Client_Handler, new_tcpsocket);
+        pthread_detach(tid); 
+    }
+    pthread_exit(NULL); 
+}
+
+void* Mythread::TCP_Client_Handler(void* argc)
+{
+    TcpSocket* socket = static_cast<TcpSocket*>(argc);
+    uint8_t buf[5] = {0};
+    float pixel_diffx = 0.;
+    bool align_signal = 0;
+    while (1)
+    {
+        if (!socket->Receive(buf)) 
+        {
+            cout << "Client disconnected, exiting thread!" << endl;
+            break; 
+        }
+        memcpy(&align_signal, buf, 1);
+        memcpy(&pixel_diffx, buf + 1, 4);
+        memset(buf, 0, sizeof(buf));
+        cout << "Client_rs Say: align_signal(" << align_signal << 
+                ") pixel_diffx(" << pixel_diffx << ")"<< endl;
+    }
+    delete socket;
+    pthread_exit(NULL); 
+}

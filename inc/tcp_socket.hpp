@@ -6,7 +6,6 @@
 #include <sys/socket.h>
 
 #define MAX_LISTEN 5
-#define CHECK_RET(q) if((q) == false){return -1;}
 
 using namespace std;
 
@@ -104,9 +103,9 @@ class TcpSocket
             return true;
         }
 
-        bool Send(const uint8_t* data, size_t len)
+        bool Send(const uint8_t* data)
         {
-            int ret = send(_sockfd, data, len, 0);
+            int ret = send(_sockfd, data, sizeof(data), 0);
             if(ret < 0)
             {
                 perror("Send Error!");

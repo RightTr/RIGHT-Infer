@@ -7,7 +7,7 @@ int main(int argc, char const *argv[])
 {
     Yolo yolo;
     RealSense rs;
-    std::string engine_v8_seg = "/home/right/RIGHT-Infer/workspace/Basket/best.engine";
+    string engine_v8_seg = "/home/right/RIGHT-Infer/workspace/Basket/best.engine";
     yolo::BoxArray objs;
     cv::Mat image_color;
     cv::Point2f center;
@@ -19,8 +19,10 @@ int main(int argc, char const *argv[])
     uint8_t buf[5] = {0};
 
     TcpSocket tcpsocket;
-    CHECK_RET(tcpsocket.Socket());
-    CHECK_RET(tcpsocket.Connect(srv_ip, src_port));
+    if (!tcpsocket.Socket())
+        throw runtime_error("Socket failed");
+    if (!tcpsocket.Connect(srv_ip, src_port))
+        throw runtime_error("Connect failed");
 
     while (1)
     {
@@ -31,7 +33,7 @@ int main(int argc, char const *argv[])
         rs.Color_With_Mask(image_color, objs);
         Pixels_Center_Extract(objs, image_color, center);
         pixel_diffx = center.x - img_width / 2.;
-        if(pixel_diffx < 5.)
+        if(pixel_diffx < 5. && pixel_diffx > -5.)
         {
             align_signal = 1;
             cout << "Successfully Aligned!" << endl;
@@ -46,8 +48,8 @@ int main(int argc, char const *argv[])
         cv::imshow("Seg Color Image", image_color);
         if (cv::waitKey(1) == 27)
             break;
-        cout << "Client Send";
-        tcpsocket.Send(buf, sizeof(buf));
+        cout << "Client Send\n";
+        tcpsocket.Send(buf);
         memset(buf, 0, sizeof(buf));
     }
     return 0;

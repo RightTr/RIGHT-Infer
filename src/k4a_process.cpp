@@ -47,9 +47,9 @@ int main(int argc, char const *argv[])
 
     pthread_t thread[8] = {0};
 
-    pthread_create(&thread[0], NULL, Mythread::K4a_Single_Inference_V8_Seg, &mythread);
+    // pthread_create(&thread[0], NULL, Mythread::K4a_Single_Inference_V8_Seg, &mythread);
     // pthread_create(&thread[1], NULL, Mythread::K4a_Depth_Get, &mythread);
-    pthread_create(&thread[1], NULL, Mythread::K4a_Image_Show, &mythread);
+    pthread_create(&thread[1], NULL, Mythread::TCP_Server, &mythread);
 
     for(int i = 0; i < 8; i++)
     {
