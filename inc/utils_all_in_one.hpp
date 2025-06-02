@@ -24,6 +24,7 @@
 #include <chrono>
 
 #include "myinfer.hpp"
+#include "uart.hpp"
 
 #define TIMESTART auto Start = std::chrono::system_clock::now();
 #define TIMEEND auto End = std::chrono::system_clock::now();
@@ -42,5 +43,36 @@ void Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cl
 void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
 
 void Pixels_Center_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, cv::Point2f& center);
+
+class FPSCounter 
+{
+    public:
+        FPSCounter(const std::string& name = "FPS") : name_(name), frame_count_(0) 
+        {
+            start_time_ = std::chrono::steady_clock::now();
+        }
+    
+        void tick() 
+        {
+            frame_count_++;
+            auto now = std::chrono::steady_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start_time_).count();
+    
+            if (duration >= 1) 
+            {
+                double fps = frame_count_ / static_cast<double>(duration);
+                COUT_CYAN_START
+                std::cout << "[" << name_ << "] FPS: " << fps << std::endl;
+                COUT_COLOR_END
+                frame_count_ = 0;
+                start_time_ = now;
+            }
+        }
+    
+    private:
+        std::string name_;
+        int frame_count_;
+        std::chrono::steady_clock::time_point start_time_;
+    };
 
 #endif

@@ -13,13 +13,12 @@
 
 using namespace std;
 static pthread_mutex_t mutex_k4a_show = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutex_pcl = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mutex_signal_shared = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t cond_show = PTHREAD_COND_INITIALIZER;
 static pthread_cond_t cond_aligned = PTHREAD_COND_INITIALIZER;
 static bool align_signal_shared = false;
 static bool show_ready = false;
-static bool depth_request = false;
-static pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_seg_ptr_ = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(); 
 
 class Mythread
 {
@@ -44,10 +43,6 @@ class Mythread
         static void* K4a_Single_Inference_V8_Seg(void* argc); 
 
         static void* K4a_Image_Show(void* argc);
-
-        static void* K4a_Depth_Get(void* argc);
-
-        static void* K4a_Seg_to_Pcl(void* argc);
 
         static void* K4a_Pcl_Process(void* argc);
 

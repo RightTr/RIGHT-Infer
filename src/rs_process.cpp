@@ -18,6 +18,7 @@ int main(int argc, char const *argv[])
     float pixel_diffx = 0;
     bool align_signal = 0;
     uint8_t buf[5] = {0};
+    FPSCounter fps("Realsense Stream");
 
     TcpSocket tcpsocket;
     if (!tcpsocket.Socket())
@@ -54,10 +55,9 @@ int main(int argc, char const *argv[])
         if (cv::waitKey(1) == 27)
             break;
 
-        COUT_GREEN_START
         cout << "Client Send\n";
-        COUT_COLOR_END
         tcpsocket.Send(buf);
+        fps.tick();
         memset(buf, 0, sizeof(buf));
     }
     return 0;

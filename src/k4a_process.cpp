@@ -19,7 +19,10 @@
 //         yolo.Yolov8_Seg_Enable(engine_v8_seg);
 
 //         yolo.Single_Inference(image_color, objs);
-//         // k4a.Value_Mask_to_Pcl(cloud, objs);
+//         TIMESTART
+//         k4a.Value_Mask_to_Pcl(cloud, objs);
+//         TIMEEND
+//         DURATION
 //         // if(index < 500)
 //         // {
 //         //     pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/datasets/ply/test/basket" + std::to_string(index++) + ".ply", cloud);

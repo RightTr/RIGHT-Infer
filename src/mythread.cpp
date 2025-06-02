@@ -7,6 +7,8 @@ void* Mythread::K4a_Single_Inference_V8_Seg(void* argc)
     std::shared_ptr<cv::Mat> color_ptr = std::make_shared<cv::Mat>();
     std::shared_ptr<cv::Mat> depth_ptr = std::make_shared<cv::Mat>();
     std::shared_ptr<yolo::BoxArray> objs_ptr = std::make_shared<yolo::BoxArray>();
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_seg_ptr = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(); 
+    FPSCounter fps("Infer and Seg");
 
     pthread_mutex_lock(&mutex_signal_shared);
     while(1)
@@ -20,6 +22,7 @@ void* Mythread::K4a_Single_Inference_V8_Seg(void* argc)
         thread_instance->k4a->Image_to_Cv(*color_ptr, *depth_ptr);
         thread_instance->yolo->Single_Inference(*color_ptr, *objs_ptr);
         thread_instance->k4a->Color_With_Mask(*color_ptr, *objs_ptr);
+        thread_instance->k4a->Value_Mask_to_Pcl(*cloud_seg_ptr, *objs_ptr);
 
         if(pthread_mutex_trylock(&mutex_k4a_show) == 0) 
         {
@@ -29,9 +32,11 @@ void* Mythread::K4a_Single_Inference_V8_Seg(void* argc)
             pthread_mutex_unlock(&mutex_k4a_show);
         }
 
-        thread_instance->depth_ptr = std::make_shared<cv::Mat>(depth_ptr->clone());
-        thread_instance->objs_ptr = std::make_shared<yolo::BoxArray>(*objs_ptr);
-    
+        pthread_mutex_lock(&mutex_pcl);
+        thread_instance->cloud_seg_ptr = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(*cloud_seg_ptr);
+        pthread_mutex_unlock(&mutex_pcl);
+        
+        fps.tick();
         usleep(10);
         pthread_mutex_lock(&mutex_signal_shared);
     }
@@ -66,32 +71,19 @@ void* Mythread::K4a_Image_Show(void* argc)
     pthread_exit(NULL); 
 }
 
-void* Mythread::K4a_Seg_to_Pcl(void* argc)
-{
-    Mythread* thread_instance = static_cast<Mythread*>(argc);
-    while(1)
-    {
-        pthread_mutex_lock(&mutex_k4a_show);
-        thread_instance->k4a->Value_Mask_to_Pcl(*(thread_instance->cloud_seg_ptr), *(thread_instance->objs_ptr));
-        pthread_mutex_unlock(&mutex_k4a_show);
-        usleep(10);
-    }
-    pthread_exit(NULL); 
-}
-
 void* Mythread::K4a_Pcl_Process(void* argc)
 {
-    Mythread* thread_instance = static_cast<Mythread*>(argc);
-    Eigen::VectorXf coeff;
-    while(1)
-    {
-        pthread_mutex_lock(&mutex_k4a_show);
-        *(cloud_seg_ptr_) = *(thread_instance->cloud_seg_ptr);
-        pthread_mutex_unlock(&mutex_k4a_show);
-        Vg_Filter(0.06, cloud_seg_ptr_);
-        Sor_Filter(50, 0.01, cloud_seg_ptr_);
-        usleep(1000);
-    }
+    // Mythread* thread_instance = static_cast<Mythread*>(argc);
+    // Eigen::VectorXf coeff;
+    // while(1)
+    // {
+    //     pthread_mutex_lock(&mutex_k4a_show);
+    //     *(cloud_seg_ptr_) = *(thread_instance->cloud_seg_ptr);
+    //     pthread_mutex_unlock(&mutex_k4a_show);
+    //     Vg_Filter(0.06, cloud_seg_ptr_);
+    //     Sor_Filter(50, 0.01, cloud_seg_ptr_);
+    //     usleep(1000);
+    // }
     pthread_exit(NULL); 
 }
 
