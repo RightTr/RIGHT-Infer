@@ -1,4 +1,5 @@
-#include "uart.hpp"
+#include "uart.h"
+
 
 namespace com{
 
@@ -49,10 +50,8 @@ void UART::UART_CONFIG()
     cfsetospeed(&configs, baudrate);
 
     
-    configs.c_cflag |= (CLOCAL | CREAD); //修改控制模式，保证程序不会占用串口 | 使能从串口读取输入数据
-    configs.c_cflag &= ~CSIZE; //清除数据位大小配置
-    configs.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG); //确保串口通信以原始模式进行，不进行额外的输入输出处理
-    configs.c_oflag &= ~OPOST;
+    configs.c_cflag |= (CLOCAL | CREAD);
+    configs.c_cflag &= ~CSIZE;
 
     //设置数据位
     switch(databits)
@@ -71,51 +70,49 @@ void UART::UART_CONFIG()
             break;
     }
 
-    //设置校验位
+
     switch (this->parity) 
     {
-        case 0: //无奇偶校验位
+        case 0: 
             this->configs.c_cflag &= ~PARENB;
             this->configs.c_iflag &= ~INPCK;
             break;
-        case 1: //设置为奇校验 
+        case 1: 
             this->configs.c_cflag |= (PARODD | PARENB);
             this->configs.c_iflag |= INPCK;
             break;
-        case 2: //设置为偶校验
+        case 2: 
             this->configs.c_cflag |= PARENB;
             this->configs.c_cflag &= ~PARODD;
             this->configs.c_iflag |= INPCK;
             break;
     }
 
-    //设置停止位
     switch (this->stopbits) 
     {
-        case 1: //单停止位
+        case 1: 
             this->configs.c_cflag &= ~CSTOPB;
             break;
-        case 2: //双停止位
+        case 2: 
             this->configs.c_cflag |= CSTOPB;
             break;
     }
-
-    //设置数据流    
+   
     switch(flow_ctrl)
     {
-        case 0: //不使用数据流控制
+        case 0: 
             configs.c_cflag &= ~CRTSCTS; 
             break;
-        case 1: //使用硬件流控制
+        case 1: 
             configs.c_cflag |= CRTSCTS; 
             break;
     }
 
 
-    configs.c_cc[VTIME] = 0; 
-    configs.c_cc[VMIN] = 0;
+    configs.c_cc[VTIME] = 1; 
+    configs.c_cc[VMIN] = 1; 
 
-    tcflush(this->fd,TCIFLUSH); //如果发生数据溢出，接收数据，但是不再读取 刷新收到的数据但是不读
+    tcflush(this->fd,TCIFLUSH); 
 
     if(tcsetattr(fd, TCSANOW, &configs))
     {
@@ -264,61 +261,85 @@ void UART::UART_SET_PARITY(int in_parity)
     }
 }
 
+
 void UART::UART_SEND(const uint8_t* buffer_written, size_t length)
 {   
-    ssize_t bytes_written = write(fd, buffer_written, length);
-
-    if(bytes_written != -1)
+    if(!send_flag)
     {
-        COUT_BLUE_START
-        printf("Send %zd bytes success!\n", bytes_written);
-        COUT_COLOR_END
-    }   
-    else
-    {
-        COUT_RED_START
-        printf("Send error!\n");
-        COUT_COLOR_END
+        send_flag = 1;
+        usleep(5000);
+        ssize_t bytes_written = write(fd, buffer_written, length);
+        usleep(5000);
+        send_flag = 0;
+        
+        if(bytes_written != -1)
+        {
+            COUT_BLUE_START
+            printf("Send %zd bytes success!\n", bytes_written);
+            COUT_COLOR_END
+        }   
+        else
+        {
+            COUT_RED_START
+            printf("Send error!\n");
+            COUT_COLOR_END
+        }
     }
 }
 
-void UART::UART_RECEIVE(uint8_t* buffer_read, size_t length)
-{
-    while(retry-- > 0)
+void UART::UART_SEND_CLONE(const uint8_t* buffer_written, size_t length)
+{   
+    if(!send_flag)
     {
-        ssize_t bytes_read = read(fd, buffer_read, length);
+        send_flag = 1;
+        usleep(5000);
+        ssize_t bytes_written = write(fd, buffer_written, length);
+        usleep(5000);
+        send_flag = 0;
+
+        if(bytes_written != -1)
+        {
+            COUT_BLUE_START
+            printf("Clone Send %zd bytes success!\n", bytes_written);
+            COUT_COLOR_END
+        }   
+        else
+        {
+            COUT_RED_START
+            printf("Send error!\n");
+            COUT_COLOR_END
+        }
+    }
+}
+
+void UART::UART_RECEIVE()
+{
+    char getdata[10]={0};
+    while(1)
+    {
+        ssize_t bytes_read = read(fd, getdata, sizeof(getdata)-1);
         if(bytes_read > 0)
         {
+            getdata[bytes_read] = '\0';
             COUT_BLUE_START
             printf("Receive %zd bytes success!\n", bytes_read);
             COUT_COLOR_END
-            if (buffer_read[0] != RXHEAD1 || buffer_read[1] != RXHEAD2)
-            {
-                memset(buffer_read, 0, sizeof(buffer_read));
-                continue;
-            }
-            if (bytes_read >= 16 && buffer_read[14] == RXTAIL1 && buffer_read[15] == RXTAIL2)
-            {
-                break;
-            }
         }   
         else if(bytes_read == 0)
         {
             COUT_RED_START
             printf("No data receive!\n");
             COUT_COLOR_END
-            return ;
         }
         else if(bytes_read == -1)
         {
             COUT_RED_START
             printf("Receive error!\n");
             COUT_COLOR_END
-            return ;
+            usleep(1000);
         } 
     }
 }
-
 
 UART::UART()
 {

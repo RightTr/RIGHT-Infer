@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <iostream>
 #include <unistd.h>
 #include <stdlib.h>
@@ -10,7 +9,6 @@
 #include <errno.h>
 #include <fcntl.h>
 
-
 #define COUT_RED_START      std::cout << "\033[1;31m";
 #define COUT_GREEN_START    std::cout << "\033[1;32m";
 #define COUT_YELLOW_START   std::cout << "\033[1;33m";
@@ -19,11 +17,6 @@
 #define COUT_CYAN_START     std::cout << "\033[1;36m";
 #define COUT_WHITE_START    std::cout << "\033[1;37m";
 #define COUT_COLOR_END      std::cout << "\033[0m";
-
-#define RXHEAD1 0xFF
-#define RXHEAD2 0xFE
-#define RXTAIL1 0xAA
-#define RXTAIL2 0xDD
 
 namespace com{
 
@@ -38,7 +31,7 @@ class UART
         int stopbits = 1;        
         int baudrate = B115200;        
         bool flag = 1;
-        int retry = 5;
+        bool send_flag = 0;
 
         struct termios configs = {0};
 
@@ -70,8 +63,9 @@ class UART
         void UART_SET_PARITY(int in_parity);
 
         void UART_SEND(const uint8_t* buffer_written, size_t length);
+        void UART_SEND_CLONE(const uint8_t* buffer_written, size_t length);
 
-        void UART_RECEIVE(uint8_t* buffer_read, size_t length);
+        void UART_RECEIVE();
         UART();
         ~UART();
 
