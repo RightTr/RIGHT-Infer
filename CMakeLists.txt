@@ -42,8 +42,7 @@ target_link_libraries(k4a_process
 )
 
 add_executable(rs_process src/rs_process.cpp src/camera.cpp src/myinfer.cpp 
-                    src/utils_all_in_one.cpp src/mythread.cpp
-                    src/uart.cpp src/params.cpp)
+                    src/utils_all_in_one.cpp src/params.cpp)
 
 target_link_libraries(rs_process 
     ${OpenCV_LIBS}

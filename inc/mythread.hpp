@@ -29,7 +29,6 @@ class Mythread
     private:
         K4a* k4a;
         Yolo* yolo;
-        // com::UART uart;
         string engine_v8 = "/home/right/RIGHT-Infer/workspace/best.engine"; 
         string engine_v8_seg= "/home/right/RIGHT-Infer/workspace/Basket/best.engine"; 
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_seg_ptr = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(); 
@@ -53,8 +52,6 @@ class Mythread
         static void* TCP_Server(void* argc);
 
         static void* TCP_Client_Rs_Handler(void* argc);
-
-        static void* UART_Handler(void* argc);
 
         Mythread()
         {

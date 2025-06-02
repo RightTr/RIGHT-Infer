@@ -47,6 +47,7 @@ void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr, Eigen::Vector
     if (cloud_ptr->size() < 20)
     {
         cerr << "No enough points when extracting circle" << endl;
+        target2d = Eigen::Vector2f(-999.0f, -999.0f); // as NAN
         return;
     }
     pcl::ExtractIndices<pcl::PointXYZ> extract;
@@ -64,6 +65,7 @@ void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr, Eigen::Vector
     if (inliers->indices.empty())
     {
         cerr << "Get no point in circle extracted" << endl;
+        target2d = Eigen::Vector2f(-999.0f, -999.0f); // as NAN
         return;
     }
     extract.setInputCloud(cloud_ptr);

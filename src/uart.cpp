@@ -284,6 +284,10 @@ void UART::UART_SEND(const uint8_t* buffer_written, size_t length)
             COUT_COLOR_END
         }
     }
+    else
+    {
+        return ;
+    }
 }
 
 void UART::UART_SEND_CLONE(const uint8_t* buffer_written, size_t length)
@@ -305,9 +309,13 @@ void UART::UART_SEND_CLONE(const uint8_t* buffer_written, size_t length)
         else
         {
             COUT_RED_START
-            printf("Send error!\n");
+            printf("Clone Send error!\n");
             COUT_COLOR_END
         }
+    }
+    else
+    {
+        return ;
     }
 }
 

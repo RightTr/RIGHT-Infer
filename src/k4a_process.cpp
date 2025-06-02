@@ -46,7 +46,7 @@
 
 int main(int argc, char const *argv[])
 {
-    K4a_Read_Parameters("/home/right/RIGHT-Infer/config/config.yaml");
+    K4a_Read_Parameters("/home/right/RIGHT-Infer/config/kinect.yaml");
 
     Mythread mythread;
 

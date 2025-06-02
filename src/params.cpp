@@ -24,6 +24,20 @@ void K4a_Read_Parameters(string path)
         k4a_pitch = config["kinect"]["pitch"] ? config["kinect"]["pitch"].as<float>() : 25.0;
         k4a2robot_x = config["kinect"]["k4a2robot_x"] ? config["kinect"]["k4a2robot_x"].as<float>() : -166.93;
         k4a2robot_y = config["kinect"]["k4a2robot_y"] ? config["kinect"]["k4a2robot_y"].as<float>() : -12.91;
+
+        std::cout << "========== K4a Config Loaded ==========" << std::endl;
+        std::cout << "[Pcl_process]" << std::endl;
+        std::cout << "  vg_leafsize   : " << vg_leafsize << std::endl;
+        std::cout << "  sor_amount    : " << sor_amount << std::endl;
+        std::cout << "  sor_dis       : " << sor_dis << std::endl;
+        std::cout << "  ransac_dis    : " << ransac_dis << std::endl;
+        std::cout << "  ransac_iters  : " << ransac_iters << std::endl;
+        std::cout << "  basket_radius : " << basket_radius << std::endl;
+        std::cout << "[kinect]" << std::endl;
+        std::cout << "  pitch         : " << k4a_pitch << std::endl;
+        std::cout << "  k4a2robot_x   : " << k4a2robot_x << std::endl;
+        std::cout << "  k4a2robot_y   : " << k4a2robot_y << std::endl;
+        std::cout << "========================================" << std::endl;
     } 
     catch(const YAML::Exception& e) 
     {

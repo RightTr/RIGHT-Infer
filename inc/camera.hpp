@@ -29,13 +29,7 @@
 #define COUT_WHITE_START    std::cout << "\033[1;37m";
 #define COUT_COLOR_END      std::cout << "\033[0m";
 
-#define TIMESTART auto Start = std::chrono::system_clock::now();
-#define TIMEEND auto End = std::chrono::system_clock::now();
-#define DURATION std::cout << "Duration: " << double(std::chrono::duration_cast<std::chrono::microseconds>(End - Start).count()) * std::chrono::microseconds::period::num / std::chrono::microseconds::period::den << "s" << std::endl;
-
 #define MIN_DISTANCE 2.0
-
-
 
 class K4a
 {

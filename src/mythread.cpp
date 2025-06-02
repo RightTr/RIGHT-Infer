@@ -1,5 +1,9 @@
 #include "mythread.hpp"
 
+static com::UART uart;
+static void UART_Send_Diff(const float& diff);
+static void UART_Send_Target(const Eigen::Vector2f& target);
+
 void* Mythread::K4a_Single_Inference_V8_Seg(void* argc)
 {   
     Mythread* thread_instance = static_cast<Mythread*>(argc);
@@ -73,7 +77,7 @@ void* Mythread::Pcl_Process(void* argc)
 {
     Mythread* thread_instance = static_cast<Mythread*>(argc);
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_seg_ptr = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(); 
-    Eigen::Vector2f target2d;
+    Eigen::Vector2f target2d = Eigen::Vector2f::Zero();;
 
     pthread_mutex_lock(&mutex_signal_shared);
     while(1)
@@ -90,6 +94,15 @@ void* Mythread::Pcl_Process(void* argc)
         Vg_Filter(vg_leafsize, cloud_seg_ptr);
         Sor_Filter(sor_amount, sor_dis, cloud_seg_ptr);
         Circle_Extract(cloud_seg_ptr, target2d);
+
+        if(target2d[0] == -999.0f && target2d[1] == -999.0f)
+        {
+
+        }
+        else
+        {
+            UART_Send_Target(target2d);
+        }
         usleep(10);
         pthread_mutex_lock(&mutex_signal_shared);
     }
@@ -130,6 +143,7 @@ void* Mythread::TCP_Client_Rs_Handler(void* argc)
     uint8_t buf[5] = {0};
     float pixel_diffx = 0.;
     bool align_signal = 0;
+    bool last_signal = 0;
     while (1)
     {
         if (!socket->Receive(buf)) 
@@ -142,21 +156,31 @@ void* Mythread::TCP_Client_Rs_Handler(void* argc)
         }
         memcpy(&align_signal, buf, 1);
         memcpy(&pixel_diffx, buf + 1, 4);
+        if(!align_signal)
+        {
+            UART_Send_Diff(pixel_diffx);
+        }
 
         pthread_mutex_lock(&mutex_signal_shared);
         align_signal_shared = (buf[0] == 1);
-        if (align_signal_shared) 
+        if(align_signal_shared && !last_signal) 
         {
             pthread_cond_broadcast(&cond_aligned); 
+            last_signal = align_signal;
             COUT_YELLOW_START
             cout << "Wake up all fine worker threads!" << endl;
             COUT_COLOR_END
         } 
-        else 
+        else if(!align_signal_shared && last_signal)
         {
+            last_signal = align_signal;
             COUT_YELLOW_START
             cout << "Fine workers will wait." << endl;
             COUT_COLOR_END
+        }
+        else
+        {
+            last_signal = align_signal;
         }
         pthread_mutex_unlock(&mutex_signal_shared);
 
@@ -169,11 +193,27 @@ void* Mythread::TCP_Client_Rs_Handler(void* argc)
     pthread_exit(NULL); 
 }
 
-void* Mythread::UART_Handler(void* argc)
+void UART_Send_Diff(const float& diff)
 {
+    uint8_t data[9] = {0};
+    data[0] = 0xFF;
+    data[1] = 0xFE;
+    data[2] = 0;
+    memcpy(&data[3], &diff, 4);
+    data[7] = 0xAA;
+    data[8] = 0xDD;
+    uart.UART_SEND(data, 9);
+}
 
-    while(1)
-    {
-
-    }
+void UART_Send_Target(const Eigen::Vector2f& target)
+{
+    uint8_t data[13] = {0};
+    data[0] = 0xFF;
+    data[1] = 0xFE;
+    data[2] = 0;
+    memcpy(&data[3], &target[0], 4);
+    memcpy(&data[7], &target[1], 4);
+    data[11] = 0xAA;
+    data[12] = 0xDD;
+    uart.UART_SEND_CLONE(data, 13);
 }

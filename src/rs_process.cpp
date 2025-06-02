@@ -2,7 +2,6 @@
 #include "myinfer.hpp"
 #include "utils_all_in_one.hpp"
 #include "tcp_socket.hpp"
-#include "uart.hpp"
 
 int main(int argc, char const *argv[])
 {
