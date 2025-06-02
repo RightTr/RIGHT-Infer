@@ -42,48 +42,57 @@ void Ror_Filter(int amount, float radius, pcl::PointCloud<pcl::PointXYZ>::Ptr cl
     std::cout << "Ror PointCloud Size:" << cloud_ptr->size() << std::endl;
 }
 
-void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr, Eigen::Vector2f& target2d)
 {   
-    
-    if(cloud_ptr->size() < 200)
+    if (cloud_ptr->size() < 20)
     {
-        return ;
+        cerr << "No enough points when extracting circle" << endl;
+        return;
     }
     pcl::ExtractIndices<pcl::PointXYZ> extract;
-    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
-    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree;
-    pcl::SACSegmentationFromNormals<pcl::PointXYZ,pcl::Normal> seg;
-    pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+    pcl::SampleConsensusModelCircle3D<pcl::PointXYZ>::Ptr circle3d(new pcl::SampleConsensusModelCircle3D<pcl::PointXYZ>(cloud_ptr));
+    Eigen::VectorXf coeff;
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
-    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
-    std::vector<pcl::ModelCoefficients> coeff;
-    ne.setInputCloud(cloud_ptr);
-    ne.setSearchMethod(tree);
-    ne.setRadiusSearch(0.01);
-    ne.compute(*normals);
-    seg.setOptimizeCoefficients(true);
-    seg.setModelType(pcl::SACMODEL_CIRCLE3D);
-    seg.setMethodType(pcl::SAC_RANSAC);
-    // seg.setNormalDistanceWeight(0.001);
-    seg.setMaxIterations(10000);
-    seg.setDistanceThreshold(0.05);
-    seg.setRadiusLimits(0.23, 0.24);
-    seg.setInputNormals(normals);
-    seg.setInputCloud(cloud_ptr);
-    seg.segment(*inliers, *coefficients);
+    pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(circle3d);
+    vector<int> ransac_inliers;
+    ransac.setDistanceThreshold(ransac_dis);
+    ransac.setMaxIterations(ransac_iters);
+    ransac.computeModel();
+    ransac.getModelCoefficients(coeff);
+    ransac.getInliers(ransac_inliers);
+    inliers->indices = ransac_inliers;
+    if (inliers->indices.empty())
+    {
+        cerr << "Get no point in circle extracted" << endl;
+        return;
+    }
     extract.setInputCloud(cloud_ptr);
     extract.setIndices(inliers);
     extract.setNegative(false);
     extract.filter(*cloud_ptr);
-    coeff.push_back(*coefficients); 
-    std::cout << "x:"<< coeff.at(0).values[0] << ",y:" << coeff.at(0).values[1] << 
-                ",z:" << coeff.at(0).values[2] << ",r:" << coeff.at(0).values[3] <<
-                ",ex:"<< coeff.at(0).values[4] << ",ey:" << coeff.at(0).values[5]<< 
-                ",ez" << coeff.at(0).values[6] << std::endl;  
-    if(coeff.at(0).values[3] > 0.23 && coeff.at(0).values[3] < 0.24)
-    {
-        std::cout << "Valid Extract:" << valid++ << std::endl;
-    }
+
+    Eigen::Vector3d center3d = FitCircle_LM(cloud_ptr, basket_radius, coeff);
+
+    double radians = k4a_pitch * M_PI / 180.0;
+
+    float target2robot_x= center3d[0] * 1000 + k4a2robot_x;
+    float target2robot_y = center3d[1] * sin(radians) * 1000 + center3d[2] * cos(radians) * 1000 + k4a2robot_y;
+
+    target2d = Eigen::Vector2f(target2robot_x, target2robot_y);
+
+    cout << "target2robot_x: " << target2robot_x << ", target2robot_y: " << target2robot_y << endl;
+}
+
+Eigen::Vector3d FitCircle_LM(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr, double radius, Eigen::VectorXf &coeff)
+{
+    Eigen::VectorXd c(3);
+    c << coeff[0], coeff[1], coeff[2];
+
+    CircleFunctor functor(cloud_ptr, radius);
+    Eigen::LevenbergMarquardt<CircleFunctor> lm(functor);
+    lm.minimize(c);
+
+    return Eigen::Vector3d(c(0), c(1), c(2));
 }
 
 void Pixels_Center_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, cv::Point2f& center)

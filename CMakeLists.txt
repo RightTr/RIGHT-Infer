@@ -13,8 +13,11 @@ find_package(CUDA REQUIRED)
 find_package(k4a REQUIRED)
 find_package(PCL 1.13 REQUIRED)
 find_package(realsense2 REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
-link_directories(/usr/local/cuda/lib64)
+link_directories(
+    /usr/local/cuda/lib64
+)
 
 include_directories(
     inc
@@ -24,7 +27,7 @@ include_directories(
 
 add_executable(k4a_process src/k4a_process.cpp src/camera.cpp src/myinfer.cpp 
                     src/utils_all_in_one.cpp src/mythread.cpp
-                    src/uart.cpp)
+                    src/uart.cpp src/params.cpp)
 
 target_link_libraries(k4a_process 
     ${OpenCV_LIBS}
@@ -35,11 +38,12 @@ target_link_libraries(k4a_process
     ${TENSORRT_DIR}/lib/libnvinfer.so
     Threads::Threads
     realsense2::realsense2
+    yaml-cpp
 )
 
 add_executable(rs_process src/rs_process.cpp src/camera.cpp src/myinfer.cpp 
                     src/utils_all_in_one.cpp src/mythread.cpp
-                    src/uart.cpp)
+                    src/uart.cpp src/params.cpp)
 
 target_link_libraries(rs_process 
     ${OpenCV_LIBS}
@@ -50,6 +54,7 @@ target_link_libraries(rs_process
     ${TENSORRT_DIR}/lib/libnvinfer.so
     Threads::Threads
     realsense2::realsense2
+    yaml-cpp
 )
 
 

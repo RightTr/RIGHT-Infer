@@ -1,0 +1,12 @@
+Kinect:
+  k4a_pitch: 25
+  k4a2robot_x: -166.93
+  k4a2robot_y: -12.91
+
+Pcl_process::
+  vg_leafsize: 0.05
+  sor_amount: 50
+  sor_dis: 0.1 
+  ransac_dis: 0.2
+  ransac_iters: 10000
+  basket_radius: 0.225

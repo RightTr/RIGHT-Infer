@@ -20,6 +20,10 @@ static pthread_cond_t cond_aligned = PTHREAD_COND_INITIALIZER;
 static bool align_signal_shared = false;
 static bool show_ready = false;
 
+extern float vg_leafsize;
+extern int sor_amount;
+extern float sor_dis;
+
 class Mythread
 {
     private:
@@ -44,7 +48,7 @@ class Mythread
 
         static void* K4a_Image_Show(void* argc);
 
-        static void* K4a_Pcl_Process(void* argc);
+        static void* Pcl_Process(void* argc);
 
         static void* TCP_Server(void* argc);
 

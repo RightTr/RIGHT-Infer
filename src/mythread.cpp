@@ -8,7 +8,6 @@ void* Mythread::K4a_Single_Inference_V8_Seg(void* argc)
     std::shared_ptr<cv::Mat> depth_ptr = std::make_shared<cv::Mat>();
     std::shared_ptr<yolo::BoxArray> objs_ptr = std::make_shared<yolo::BoxArray>();
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_seg_ptr = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(); 
-    FPSCounter fps("Infer and Seg");
 
     pthread_mutex_lock(&mutex_signal_shared);
     while(1)
@@ -36,7 +35,6 @@ void* Mythread::K4a_Single_Inference_V8_Seg(void* argc)
         thread_instance->cloud_seg_ptr = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(*cloud_seg_ptr);
         pthread_mutex_unlock(&mutex_pcl);
         
-        fps.tick();
         usleep(10);
         pthread_mutex_lock(&mutex_signal_shared);
     }
@@ -71,19 +69,31 @@ void* Mythread::K4a_Image_Show(void* argc)
     pthread_exit(NULL); 
 }
 
-void* Mythread::K4a_Pcl_Process(void* argc)
+void* Mythread::Pcl_Process(void* argc)
 {
-    // Mythread* thread_instance = static_cast<Mythread*>(argc);
-    // Eigen::VectorXf coeff;
-    // while(1)
-    // {
-    //     pthread_mutex_lock(&mutex_k4a_show);
-    //     *(cloud_seg_ptr_) = *(thread_instance->cloud_seg_ptr);
-    //     pthread_mutex_unlock(&mutex_k4a_show);
-    //     Vg_Filter(0.06, cloud_seg_ptr_);
-    //     Sor_Filter(50, 0.01, cloud_seg_ptr_);
-    //     usleep(1000);
-    // }
+    Mythread* thread_instance = static_cast<Mythread*>(argc);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_seg_ptr = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(); 
+    Eigen::Vector2f target2d;
+
+    pthread_mutex_lock(&mutex_signal_shared);
+    while(1)
+    {
+        while (!align_signal_shared) 
+        {
+            pthread_cond_wait(&cond_aligned, &mutex_signal_shared);
+        }
+        usleep(100);
+        pthread_mutex_unlock(&mutex_signal_shared);
+        pthread_mutex_lock(&mutex_pcl);
+        *(cloud_seg_ptr) = *(thread_instance->cloud_seg_ptr);
+        pthread_mutex_unlock(&mutex_pcl);
+        Vg_Filter(vg_leafsize, cloud_seg_ptr);
+        Sor_Filter(sor_amount, sor_dis, cloud_seg_ptr);
+        Circle_Extract(cloud_seg_ptr, target2d);
+        usleep(10);
+        pthread_mutex_lock(&mutex_signal_shared);
+    }
+    pthread_mutex_unlock(&mutex_signal_shared);
     pthread_exit(NULL); 
 }
 
