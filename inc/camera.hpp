@@ -49,7 +49,7 @@ class K4a
         int frame_count = 0;
 
     public:
-        void Open();   
+        bool Open();   
 
         void Installed_Count(); 
 
@@ -74,8 +74,10 @@ class K4a
         K4a()
         {
             Installed_Count();
-            Open();
-            Configuration();
+            if(Open())
+            {
+                Configuration();
+            }
         }
         
         ~K4a()

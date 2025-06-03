@@ -3,20 +3,22 @@
 
 using namespace std;
 
-void K4a::Open()
+bool K4a::Open()
 {
-    device = k4a::device::open(K4A_DEVICE_DEFAULT);
-    if(!device)
+    try
     {
+        device = k4a::device::open(K4A_DEVICE_DEFAULT);
         COUT_RED_START
         cerr << "Open K4a Device Error!" << endl;
         COUT_COLOR_END
+        return true;
     }
-    else
-    {   
+    catch(const std::exception& e)
+    {
         COUT_GREEN_START
         cout << "Open K4a Device Success!" << endl;
         COUT_COLOR_END
+        return false;
     }
 } 
 
