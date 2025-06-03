@@ -3,6 +3,8 @@
 #include "utils_all_in_one.hpp"
 #include "tcp_socket.hpp"
 
+#define PI 3.1415926535
+
 int main(int argc, char const *argv[])
 {
     Yolo yolo;
@@ -14,7 +16,7 @@ int main(int argc, char const *argv[])
     string srv_ip = "127.0.0.1";
     uint16_t src_port = 8888;
     int img_width = 0;
-    float pixel_diffx = 0;
+    float angle_diffx = 0;
     bool align_signal = 0;
     uint8_t buf[5] = {0};
     FPSCounter fps("Realsense Stream");
@@ -25,6 +27,9 @@ int main(int argc, char const *argv[])
     if (!tcpsocket.Connect(srv_ip, src_port))
         throw runtime_error("Connect failed");
 
+    float fx = rs.intrinsics_color.fx;
+    float cx = rs.intrinsics_color.ppx;
+
     while (1)
     {
         rs.Color_to_Cv(image_color);
@@ -33,8 +38,8 @@ int main(int argc, char const *argv[])
         yolo.Single_Inference(image_color, objs);
         rs.Color_With_Mask(image_color, objs);
         Pixels_Center_Extract(objs, image_color, center);
-        pixel_diffx = center.x - img_width / 2.;
-        if(pixel_diffx < 10. && pixel_diffx > -10.)
+        angle_diffx = atan2f((center.x - cx), fx) * 180 / PI;
+        if(angle_diffx < 5. && angle_diffx > -5.)
         {
             align_signal = 1;
             COUT_GREEN_START
@@ -49,7 +54,7 @@ int main(int argc, char const *argv[])
             COUT_COLOR_END
         }
         memcpy(buf, &align_signal, sizeof(align_signal));
-        memcpy(buf + 1, &pixel_diffx, sizeof(pixel_diffx));
+        memcpy(buf + 1, &angle_diffx, sizeof(angle_diffx));
         cv::imshow("Seg Color Image", image_color);
         if (cv::waitKey(1) == 27)
             break;
@@ -61,3 +66,5 @@ int main(int argc, char const *argv[])
     }
     return 0;
 }
+
+

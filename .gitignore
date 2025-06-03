@@ -9,3 +9,5 @@ runs
 workspace/model_past
 
 yolo11n.pt
+
+rs_color.zip

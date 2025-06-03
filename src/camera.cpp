@@ -224,6 +224,9 @@ void RealSense::Configuration()
 {
     cfg.enable_stream(RS2_STREAM_COLOR, 640, 360, RS2_FORMAT_BGR8, 60);
     profile = pipe.start(cfg);
+    rs2::video_stream_profile color_profile =
+        profile.get_stream(RS2_STREAM_COLOR).as<rs2::video_stream_profile>();
+    intrinsics_color = color_profile.get_intrinsics();
     COUT_GREEN_START
     std::cout << "Open Realsense Device Success!" << std::endl;
     COUT_COLOR_END
@@ -236,10 +239,6 @@ void RealSense::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
     frameset = align_to_color.process(frameset);
     rs2::video_frame frame_color = frameset.get_color_frame();
     rs2::depth_frame frame_depth = frameset.get_depth_frame();
-    depth_profile = frame_depth.get_profile().as<rs2::video_stream_profile>(); 
-    intrinsics_depth = depth_profile.get_intrinsics();
-    pointcloud_rs.map_to(frame_color);
-    points = pointcloud_rs.calculate(frame_depth);
     image_rs_color = cv::Mat(frame_color.get_height(), frame_color.get_width(), CV_8UC3, (void*)frame_color.get_data());
     image_rs_depth = cv::Mat(frame_depth.get_height(), frame_depth.get_width(), CV_16UC1, (void*)frame_depth.get_data());
     image_rs_depth.convertTo(image_rs_depth, CV_8U, 255.0 / 1000);

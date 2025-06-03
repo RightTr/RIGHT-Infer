@@ -141,7 +141,7 @@ void* Mythread::TCP_Client_Rs_Handler(void* argc)
 {
     TcpSocket* socket = static_cast<TcpSocket*>(argc);
     uint8_t buf[5] = {0};
-    float pixel_diffx = 0.;
+    float angle_diffx = 0.;
     bool align_signal = 0;
     bool last_signal = 0;
     while (1)
@@ -155,10 +155,10 @@ void* Mythread::TCP_Client_Rs_Handler(void* argc)
             break; 
         }
         memcpy(&align_signal, buf, 1);
-        memcpy(&pixel_diffx, buf + 1, 4);
+        memcpy(&angle_diffx, buf + 1, 4);
         if(!align_signal)
         {
-            UART_Send_Diff(pixel_diffx);
+            UART_Send_Diff(angle_diffx);
         }
 
         pthread_mutex_lock(&mutex_signal_shared);
@@ -186,7 +186,7 @@ void* Mythread::TCP_Client_Rs_Handler(void* argc)
 
         memset(buf, 0, sizeof(buf));
         cout << "Client_rs Say: align_signal(" << align_signal << 
-                ") pixel_diffx(" << pixel_diffx << ")"<< endl;
+                ") angle_diffx(" << angle_diffx << ")"<< endl;
     }
     socket->Close();
     delete socket;
@@ -210,7 +210,7 @@ void UART_Send_Target(const Eigen::Vector2f& target)
     uint8_t data[13] = {0};
     data[0] = 0xFF;
     data[1] = 0xFE;
-    data[2] = 0;
+    data[2] = 1;
     memcpy(&data[3], &target[0], 4);
     memcpy(&data[7], &target[1], 4);
     data[11] = 0xAA;
