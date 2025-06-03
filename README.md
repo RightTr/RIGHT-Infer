@@ -196,3 +196,9 @@ success = model.export(format="onnx", dynamic=True, simplify=True)
 ```bash
 ./k4a_process
 ```
+
+* 使用run.sh一键启动
+  
+```bash
+./run.sh
+```
