@@ -10,6 +10,8 @@ float k4a2robot_x;
 float k4a2robot_y;
 double basket_radius;
 
+bool rs_RGB_only;
+
 void K4a_Read_Parameters(string path)
 {
     try 
@@ -21,27 +23,47 @@ void K4a_Read_Parameters(string path)
         ransac_dis = config["Pcl_process"]["ransac_dis"] ? config["Pcl_process"]["ransac_dis"].as<float>() : 0.2;
         ransac_iters = config["Pcl_process"]["ransac_iters"] ? config["Pcl_process"]["ransac_iters"].as<float>() : 10000;
         basket_radius = config["Pcl_process"]["basket_radius"] ? config["Pcl_process"]["basket_radius"].as<double>() : 0.5;
-        k4a_pitch = config["kinect"]["pitch"] ? config["kinect"]["pitch"].as<float>() : 25.0;
-        k4a2robot_x = config["kinect"]["k4a2robot_x"] ? config["kinect"]["k4a2robot_x"].as<float>() : -166.93;
-        k4a2robot_y = config["kinect"]["k4a2robot_y"] ? config["kinect"]["k4a2robot_y"].as<float>() : -12.91;
+        k4a_pitch = config["K4a"]["pitch"] ? config["K4a"]["pitch"].as<float>() : 25.0;
+        k4a2robot_x = config["K4a"]["k4a2robot_x"] ? config["K4a"]["k4a2robot_x"].as<float>() : -166.93;
+        k4a2robot_y = config["K4a"]["k4a2robot_y"] ? config["K4a"]["k4a2robot_y"].as<float>() : -12.91;
 
-        std::cout << "========== K4a Config Loaded ==========" << std::endl;
-        std::cout << "[Pcl_process]" << std::endl;
-        std::cout << "  vg_leafsize   : " << vg_leafsize << std::endl;
-        std::cout << "  sor_amount    : " << sor_amount << std::endl;
-        std::cout << "  sor_dis       : " << sor_dis << std::endl;
-        std::cout << "  ransac_dis    : " << ransac_dis << std::endl;
-        std::cout << "  ransac_iters  : " << ransac_iters << std::endl;
-        std::cout << "  basket_radius : " << basket_radius << std::endl;
-        std::cout << "[kinect]" << std::endl;
-        std::cout << "  pitch         : " << k4a_pitch << std::endl;
-        std::cout << "  k4a2robot_x   : " << k4a2robot_x << std::endl;
-        std::cout << "  k4a2robot_y   : " << k4a2robot_y << std::endl;
-        std::cout << "========================================" << std::endl;
+        cout << "========== K4a Config Loaded ==========" << endl;
+        cout << "[K4a]" << endl;
+        cout << "  pitch         : " << k4a_pitch << endl;
+        cout << "  k4a2robot_x   : " << k4a2robot_x << endl;
+        cout << "  k4a2robot_y   : " << k4a2robot_y << endl;
+        cout << "[Pcl_process]" << endl;
+        cout << "  vg_leafsize   : " << vg_leafsize << endl;
+        cout << "  sor_amount    : " << sor_amount << endl;
+        cout << "  sor_dis       : " << sor_dis << endl;
+        cout << "  ransac_dis    : " << ransac_dis << endl;
+        cout << "  ransac_iters  : " << ransac_iters << endl;
+        cout << "  basket_radius : " << basket_radius << endl;
+        cout << "========================================" << endl;
     } 
     catch(const YAML::Exception& e) 
     {
-        std::cerr << "YAML Error: " << e.what() << std::endl;
+        cerr << "YAML Error: " << e.what() << endl;
+        return ;
+    }
+    return ;
+}
+
+void Realsense_Read_Parameters(string path)
+{
+    try 
+    {
+        YAML::Node config = YAML::LoadFile(path);
+        rs_RGB_only = config["Realsense"]["rs_RGB_only"] ? config["Realsense"]["rs_RGB_only"].as<bool>() : false;
+
+        cout << "========== Realsense Config Loaded ==========" << endl;
+        cout << "[Realsense]" << endl;
+        cout << "  rs_RGB_only   : " << rs_RGB_only << endl;
+        cout << "=============================================" << endl;
+    } 
+    catch(const YAML::Exception& e) 
+    {
+        cerr << "YAML Error: " << e.what() << endl;
         return ;
     }
     return ;

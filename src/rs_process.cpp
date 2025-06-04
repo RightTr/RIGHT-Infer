@@ -2,6 +2,7 @@
 #include "myinfer.hpp"
 #include "utils_all_in_one.hpp"
 #include "tcp_socket.hpp"
+#include "params.hpp"
 
 #define PI 3.1415926535
 

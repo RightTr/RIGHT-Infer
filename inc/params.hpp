@@ -16,6 +16,10 @@ extern double basket_radius;
 extern float k4a2robot_x;
 extern float k4a2robot_y;
 
+extern bool rs_RGB_only;
+
 void K4a_Read_Parameters(string path);
+
+void Realsense_Read_Parameters(string path);
 
 #endif
