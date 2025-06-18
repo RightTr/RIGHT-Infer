@@ -9,8 +9,8 @@
 int main(int argc, char const *argv[])
 {
     Yolo yolo;
-    RealSense rs = RealSense::Create_Default();
-    string engine_v8_seg = "/home/right/RIGHT-Infer/workspace/Basket/best.engine";
+    RealSense rs = RealSense::Create_Infrared_Only();
+    string engine_v8_seg = "/home/right/RIGHT-Infer/workspace/Basket_ir/best.engine";
     yolo::BoxArray objs;
     cv::Mat image_color;
     cv::Point2f center;
@@ -35,39 +35,40 @@ int main(int argc, char const *argv[])
 
     while (1)
     {
-        rs.Color_to_Cv(image_color);
-        // rs.Infrared_to_Cv(image_infrared_left, image_infrared_right);
+        // rs.Color_to_Cv(image_color);
+        rs.Infrared_to_Cv(image_infrared_left, image_infrared_right);
         img_width = image_color.cols;
         yolo.Yolov8_Seg_Enable(engine_v8_seg);
-        yolo.Single_Inference(image_color, objs);
-        rs.Color_With_Mask(image_color, objs);
-        Pixels_Center_Extract(objs, image_color, center);
-        angle_diffx = atan2f((center.x - cx), fx) * 180 / PI;
-        if(angle_diffx < 5. && angle_diffx > -5.)
-        {
-            align_signal = 1;
-            COUT_GREEN_START
-            cout << "Successfully Aligned!" << endl;
-            COUT_COLOR_END
-        }
-        else
-        {
-            align_signal = 0;
-            COUT_YELLOW_START
-            cout << "Try to Align......" << endl;
-            COUT_COLOR_END
-        }
+        cout << image_infrared_left.channels() << endl;
+        yolo.Single_Inference(image_infrared_left, objs);
+        rs.Color_With_Mask(image_infrared_left, objs);
+        // Pixels_Center_Extract(objs, image_color, center);
+        // angle_diffx = atan2f((center.x - cx), fx) * 180 / PI;
+        // if(angle_diffx < 5. && angle_diffx > -5.)
+        // {
+        //     align_signal = 1;
+        //     COUT_GREEN_START
+        //     cout << "Successfully Aligned!" << endl;
+        //     COUT_COLOR_END
+        // }
+        // else
+        // {
+        //     align_signal = 0;
+        //     COUT_YELLOW_START
+        //     cout << "Try to Align......" << endl;
+        //     COUT_COLOR_END
+        // }
         // memcpy(buf, &align_signal, sizeof(align_signal));
         // memcpy(buf + 1, &angle_diffx, sizeof(angle_diffx));
-        cv::imshow("Seg Color Image", image_color);
-        // cv::imshow("Infrared Left Image", image_infrared_left); 
-        // cv::imshow("Infrared Right Image", image_infrared_right);
+        // cv::imshow("Seg Color Image", image_color);
+        cv::imshow("Infrared Left Image", image_infrared_left); 
+        cv::imshow("Infrared Right Image", image_infrared_right);
         if (cv::waitKey(1) == 27)
             break;
 
-        cout << "Client Send\n";
+        // cout << "Client Send\n";
         // tcpsocket.Send(buf);
-        fps.tick();
+        // fps.tick();
         // memset(buf, 0, sizeof(buf));
     }
     return 0;

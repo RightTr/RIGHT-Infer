@@ -55,37 +55,15 @@ target_link_libraries(rs_process
     yaml-cpp
 )
 
+add_executable(rs_ir_cap src/rs_ir_cap.cpp src/camera.cpp)
+
+target_link_libraries(rs_ir_cap 
+    ${OpenCV_LIBS}
+    k4a
+    /home/right/RIGHT-Infer/lib/libyolo.a
+    cuda cublas cudart cudnn
+    ${TENSORRT_DIR}/lib/libnvinfer.so
+    realsense2::realsense2
+)
 
 
-
-
-
-# project(capture)
-
-# find_package(OpenCV REQUIRED)
-# find_package(k4a REQUIRED)
-
-# add_executable(capture src/capture.cpp src/camera.cpp)
-
-# include_directories(
-#     inc
-# )
-
-
-# target_link_libraries(capture 
-#     ${OpenCV_LIBS}
-#     k4a)
-
-# project(viewer)
-
-# find_package(PCL 1.13 REQUIRED)
-
-# include_directories(
-#     inc
-# )
-
-# add_executable(viewer src/viewer.cpp src/pclprocess.cpp)
-
-# target_link_libraries(viewer 
-#     ${PCL_LIBRARIES}
-# )

@@ -45,7 +45,6 @@ class K4a
         k4a::calibration k4aCalibration;
         k4a::transformation k4aTransformation;
         std::string output_dir = "/home/right/Datasets/Basket/";
-        std::string filename;
         int frame_count = 0;
 
     public:
@@ -99,9 +98,11 @@ class RealSense
         cv::Mat image_rs_color, image_rs_depth;
         cv::Mat image_rs_infrared_left, image_rs_infrared_right;
         cv::Mat mask;
+        std::string output_dir = "/home/right/RIGHT-Infer/datasets/basket_ir/";
+        int frame_count = 0;
 
         RealSense() = default;
-        
+
         void Configuration_Default();
 
         void Configuration_Infrared_Only();
@@ -129,6 +130,8 @@ class RealSense
         void Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
         void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
+
+        void Save_Image(int amount);
 
         ~RealSense() = default;
 

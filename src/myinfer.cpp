@@ -81,8 +81,6 @@ void Yolo::Single_Inference(cv::Mat &image)
 
       imshow("Mask", mask);
       mask.copyTo(image(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
-     
-
     }
   }
 }

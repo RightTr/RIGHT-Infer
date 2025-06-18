@@ -94,11 +94,15 @@ void K4a::Depth_to_Cv(cv::Mat &image_cv_depth)
 
 void K4a::Save_Image(int amount)
 {   
+    if(amount >= frame_count)
+    {
+        return ; 
+    }
     if(device.get_capture(&capture, chrono::milliseconds(100)) && frame_count < amount)
     {
         image_k4a_color = capture.get_color_image();
         cv::Mat image_saved = cv::Mat(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC4, image_k4a_color.get_buffer());
-        filename = output_dir + "basket_" + to_string(frame_count) + ".png";
+        string filename = output_dir + "basket_" + to_string(frame_count) + ".png";
         if(cv::imwrite(filename, image_saved))
         {
             COUT_YELLOW_START
@@ -113,7 +117,7 @@ void K4a::Save_Image(int amount)
             COUT_COLOR_END
         }
         image_saved.release();
-        usleep(500000);
+        usleep(50000);
     }
 }
 
@@ -135,12 +139,16 @@ void K4a::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray &objs)
             cv::putText(image_cv_color, caption, cv::Point(obj.left, obj.top - 5), 0, 1, cv::Scalar::all(0), 2, 16);
             if (obj.seg) 
             {
-                cv::Mat mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
-                mask.convertTo(mask, CV_8UC1);
-                cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
-                cv::cvtColor(mask, mask, cv::COLOR_GRAY2BGR); 
-                cv::addWeighted(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask, 0.8, 0.0, mask);  
-                mask.copyTo(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
+                if(obj.left >= 0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_cv_color.cols && 
+                    obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_cv_color.rows)
+                {
+                    cv::Mat mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
+                    mask.convertTo(mask, CV_8UC1);
+                    cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
+                    cv::cvtColor(mask, mask, cv::COLOR_GRAY2BGR); 
+                    cv::addWeighted(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask, 0.8, 0.0, mask);  
+                    mask.copyTo(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
+                }
             }
         }
     }
@@ -164,11 +172,15 @@ void K4a::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray &objs)
             cv::putText(image_cv_depth, caption, cv::Point(obj.left, obj.top - 5), 0, 1, cv::Scalar::all(0), 2, 16); 
             if (obj.seg) 
             {
-                cv::Mat mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
-                mask.convertTo(mask, CV_8UC1);
-                cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
-                cv::addWeighted(image_cv_depth(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask, 1.0, 0.0, mask);  
-                mask.copyTo(image_cv_depth(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
+                if(obj.left >= 0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_cv_depth.cols && 
+                    obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_cv_depth.rows)
+                {
+                    cv::Mat mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
+                    mask.convertTo(mask, CV_8UC1);
+                    cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
+                    cv::addWeighted(image_cv_depth(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask, 1.0, 0.0, mask);  
+                    mask.copyTo(image_cv_depth(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
+                }
             }
         }
     }
@@ -296,8 +308,8 @@ void RealSense::Infrared_to_Cv(cv::Mat &image_cv_infrared_left, cv::Mat &image_c
                                 CV_8UC1, (void*)frame_infrared_left.get_data());
     image_rs_infrared_right = cv::Mat(frame_infrared_right.get_height(), frame_infrared_right.get_width(), 
                                 CV_8UC1, (void*)frame_infrared_right.get_data());
-    image_cv_infrared_left = image_rs_infrared_left;
-    image_cv_infrared_right = image_rs_infrared_right;
+    cv::cvtColor(image_rs_infrared_left, image_cv_infrared_left, cv::COLOR_GRAY2BGR);
+    cv::cvtColor(image_rs_infrared_right, image_cv_infrared_right, cv::COLOR_GRAY2BGR);
 }
 
 void RealSense::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
@@ -318,13 +330,17 @@ void RealSense::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)
             cv::putText(image_cv_color, caption, cv::Point(obj.left, obj.top - 5), 0, 1, cv::Scalar::all(0), 2, 16);
             if (obj.seg) 
             {
-                    mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
-                    mask.convertTo(mask, CV_8UC1);
-                    cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
-                    cv::cvtColor(mask, mask, cv::COLOR_GRAY2BGR); 
-                    cv::addWeighted(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask, 0.8, 0.0, mask);  
-                    mask.copyTo(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
-            }
+                if(obj.left >= 0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_cv_color.cols && 
+                    obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_cv_color.rows)
+                    {
+                        mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
+                        mask.convertTo(mask, CV_8UC1);
+                        cv::resize(mask, mask, cv::Size(obj.right - obj.left, obj.bottom - obj.top), 0, 0, cv::INTER_LINEAR); 
+                        cv::cvtColor(mask, mask, cv::COLOR_GRAY2BGR); 
+                        cv::addWeighted(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)), 1.0, mask, 0.8, 0.0, mask);  
+                        mask.copyTo(image_cv_color(cv::Rect(obj.left, obj.top, obj.right - obj.left, obj.bottom - obj.top)));
+                    }
+                }
         }
     }
 }
@@ -347,7 +363,8 @@ void RealSense::Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs)
             cv::putText(image_cv_depth, caption, cv::Point(obj.left, obj.top - 5), 0, 1, cv::Scalar::all(0), 2, 16); 
             if (obj.seg) 
             {
-                if(obj.left >= 0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_cv_depth.cols && obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_cv_depth.rows)
+                if(obj.left >= 0 && obj.seg->width >=0 && obj.left + obj.seg->width < image_cv_depth.cols && 
+                    obj.top >= 0 && obj.seg->height >= 0 && obj.top + obj.seg->height <= image_cv_depth.rows)
                 {
                     mask = cv::Mat(obj.seg->height, obj.seg->width, CV_8U, obj.seg->data);
                     mask.convertTo(mask, CV_8UC1);
@@ -384,5 +401,35 @@ void RealSense::Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 void RealSense::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
 
+}
+
+void RealSense::Save_Image(int amount)
+{
+    if(amount >= frame_count)
+    {
+        return ; 
+    }
+    frameset = pipe.wait_for_frames();
+    rs2::video_frame frame_infrared = frameset.get_infrared_frame(1);
+    cv::Mat image_infrared_saved = cv::Mat(frame_infrared.get_height(), frame_infrared.get_width(), 
+                                CV_8UC1, (void*)frame_infrared.get_data());
+    image_infrared_saved.convertTo(image_infrared_saved, cv::COLOR_GRAY2BGR);
+    string filename = output_dir + "basket_" + to_string(frame_count) + ".png";
+    if(cv::imwrite(filename, image_infrared_saved))
+    {
+        COUT_YELLOW_START
+        cout << "Save basket_" << frame_count << ".png Success!" << endl;
+        COUT_COLOR_END
+        frame_count++;
+    }
+    else
+    {
+        COUT_RED_START
+        cout << "Save error!" << endl;
+        COUT_COLOR_END
+    }
+    cv::imshow("Infrared Image", image_infrared_saved);
+    cv::waitKey(10);
+    usleep(50000);
 }
 

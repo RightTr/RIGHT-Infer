@@ -24,7 +24,6 @@ class Yolo
 
     public:   
         
-
         void Yolov8_Enable(std::string &engine_);
 
         void Yolov8_Seg_Enable(std::string &engine_seg);
