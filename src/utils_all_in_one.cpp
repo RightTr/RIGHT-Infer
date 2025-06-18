@@ -128,3 +128,4 @@ void Pixels_Center_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, cv::Poin
         }
     }
 }
+

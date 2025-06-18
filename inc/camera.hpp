@@ -97,17 +97,30 @@ class RealSense
         rs2::pipeline_profile profile;
         rs2::frameset frameset;
         cv::Mat image_rs_color, image_rs_depth;
+        cv::Mat image_rs_infrared_left, image_rs_infrared_right;
         cv::Mat mask;
+
+        RealSense() = default;
+        
+        void Configuration_Default();
+
+        void Configuration_Infrared_Only();
 
     public:
         rs2_intrinsics intrinsics_depth;
         rs2_intrinsics intrinsics_color;
+
+        static RealSense Create_Default();
+
+        static RealSense Create_Infrared_Only();
 
         void Configuration();
         
         void Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth);
 
         void Color_to_Cv(cv::Mat &image_cv_color);
+
+        void Infrared_to_Cv(cv::Mat &image_cv_infrared_left, cv::Mat &image_cv_infrared_right);
 
         void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs);
 
@@ -117,16 +130,7 @@ class RealSense
 
         void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
-        RealSense()
-        {
-            Configuration();
-        }
-
-        ~RealSense()
-        {
-
-        }
-
+        ~RealSense() = default;
 
 };
 

@@ -9,7 +9,7 @@
 int main(int argc, char const *argv[])
 {
     Yolo yolo;
-    RealSense rs;
+    RealSense rs = RealSense::Create_Default();
     string engine_v8_seg = "/home/right/RIGHT-Infer/workspace/Basket/best.engine";
     yolo::BoxArray objs;
     cv::Mat image_color;
@@ -19,14 +19,16 @@ int main(int argc, char const *argv[])
     int img_width = 0;
     float angle_diffx = 0;
     bool align_signal = 0;
-    uint8_t buf[5] = {0};
+    // uint8_t buf[5] = {0};
     FPSCounter fps("Realsense Stream");
 
-    TcpSocket tcpsocket;
-    if (!tcpsocket.Socket())
-        throw runtime_error("Socket failed");
-    if (!tcpsocket.Connect(srv_ip, src_port))
-        throw runtime_error("Connect failed");
+    cv::Mat image_infrared_left, image_infrared_right;
+
+    // TcpSocket tcpsocket;
+    // if (!tcpsocket.Socket())
+    //     throw runtime_error("Socket failed");
+    // if (!tcpsocket.Connect(srv_ip, src_port))
+    //     throw runtime_error("Connect failed");
 
     float fx = rs.intrinsics_color.fx;
     float cx = rs.intrinsics_color.ppx;
@@ -34,6 +36,7 @@ int main(int argc, char const *argv[])
     while (1)
     {
         rs.Color_to_Cv(image_color);
+        // rs.Infrared_to_Cv(image_infrared_left, image_infrared_right);
         img_width = image_color.cols;
         yolo.Yolov8_Seg_Enable(engine_v8_seg);
         yolo.Single_Inference(image_color, objs);
@@ -54,16 +57,18 @@ int main(int argc, char const *argv[])
             cout << "Try to Align......" << endl;
             COUT_COLOR_END
         }
-        memcpy(buf, &align_signal, sizeof(align_signal));
-        memcpy(buf + 1, &angle_diffx, sizeof(angle_diffx));
+        // memcpy(buf, &align_signal, sizeof(align_signal));
+        // memcpy(buf + 1, &angle_diffx, sizeof(angle_diffx));
         cv::imshow("Seg Color Image", image_color);
+        // cv::imshow("Infrared Left Image", image_infrared_left); 
+        // cv::imshow("Infrared Right Image", image_infrared_right);
         if (cv::waitKey(1) == 27)
             break;
 
         cout << "Client Send\n";
-        tcpsocket.Send(buf);
+        // tcpsocket.Send(buf);
         fps.tick();
-        memset(buf, 0, sizeof(buf));
+        // memset(buf, 0, sizeof(buf));
     }
     return 0;
 }

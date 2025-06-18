@@ -222,7 +222,7 @@ void K4a::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArra
     std::cout << "Mask PointCloud:" << cloud.size() << std::endl;
 }
 
-void RealSense::Configuration()
+void RealSense::Configuration_Default()
 {
     cfg.enable_stream(RS2_STREAM_COLOR, 640, 360, RS2_FORMAT_BGR8, 60);
     profile = pipe.start(cfg);
@@ -230,8 +230,39 @@ void RealSense::Configuration()
         profile.get_stream(RS2_STREAM_COLOR).as<rs2::video_stream_profile>();
     intrinsics_color = color_profile.get_intrinsics();
     COUT_GREEN_START
-    std::cout << "Open Realsense Device Success!" << std::endl;
+    std::cout << "Open Realsense Default Success!" << std::endl;
     COUT_COLOR_END
+}
+
+void RealSense::Configuration_Infrared_Only()
+{
+    cfg.enable_stream(RS2_STREAM_INFRARED, 1, 640, 480, RS2_FORMAT_Y8, 30);
+    cfg.enable_stream(RS2_STREAM_INFRARED, 2, 640, 480, RS2_FORMAT_Y8, 30);
+    profile = pipe.start(cfg);
+    for(auto&& sensor : profile.get_device().query_sensors()) 
+    {
+        if(sensor.supports(RS2_OPTION_EMITTER_ENABLED)) 
+        {
+            sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0); 
+        }
+    }
+    COUT_GREEN_START
+    std::cout << "Open Realsense Infrared_Only Success!" << std::endl;
+    COUT_COLOR_END
+}
+
+RealSense RealSense::Create_Default()
+{
+    RealSense rs;
+    rs.Configuration_Default();
+    return rs;
+}
+
+RealSense RealSense::Create_Infrared_Only()
+{
+    RealSense rs;
+    rs.Configuration_Infrared_Only();
+    return rs;
 }
 
 void RealSense::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
@@ -254,6 +285,19 @@ void RealSense::Color_to_Cv(cv::Mat &image_cv_color)
     rs2::video_frame frame_color = frameset.get_color_frame();
     image_rs_color = cv::Mat(frame_color.get_height(), frame_color.get_width(), CV_8UC3, (void*)frame_color.get_data());
     image_cv_color = image_rs_color;
+}
+
+void RealSense::Infrared_to_Cv(cv::Mat &image_cv_infrared_left, cv::Mat &image_cv_infrared_right)
+{
+    frameset = pipe.wait_for_frames();
+    rs2::video_frame frame_infrared_left = frameset.get_infrared_frame(1);
+    rs2::video_frame frame_infrared_right = frameset.get_infrared_frame(2);
+    image_rs_infrared_left = cv::Mat(frame_infrared_left.get_height(), frame_infrared_left.get_width(), 
+                                CV_8UC1, (void*)frame_infrared_left.get_data());
+    image_rs_infrared_right = cv::Mat(frame_infrared_right.get_height(), frame_infrared_right.get_width(), 
+                                CV_8UC1, (void*)frame_infrared_right.get_data());
+    image_cv_infrared_left = image_rs_infrared_left;
+    image_cv_infrared_right = image_rs_infrared_right;
 }
 
 void RealSense::Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs)

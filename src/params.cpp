@@ -10,8 +10,6 @@ float k4a2robot_x;
 float k4a2robot_y;
 double basket_radius;
 
-bool rs_RGB_only;
-
 void K4a_Read_Parameters(string path)
 {
     try 
@@ -54,11 +52,9 @@ void Realsense_Read_Parameters(string path)
     try 
     {
         YAML::Node config = YAML::LoadFile(path);
-        rs_RGB_only = config["Realsense"]["rs_RGB_only"] ? config["Realsense"]["rs_RGB_only"].as<bool>() : false;
 
         cout << "========== Realsense Config Loaded ==========" << endl;
         cout << "[Realsense]" << endl;
-        cout << "  rs_RGB_only   : " << rs_RGB_only << endl;
         cout << "=============================================" << endl;
     } 
     catch(const YAML::Exception& e) 

@@ -51,10 +51,10 @@ target_link_libraries(rs_process
     /home/right/RIGHT-Infer/lib/libyolo.a
     cuda cublas cudart cudnn
     ${TENSORRT_DIR}/lib/libnvinfer.so
-    Threads::Threads
     realsense2::realsense2
     yaml-cpp
 )
+
 
 
 
