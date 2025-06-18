@@ -55,6 +55,20 @@ target_link_libraries(rs_process
     yaml-cpp
 )
 
+add_executable(rs_stereo src/rs_stereo.cpp src/camera.cpp src/myinfer.cpp 
+                    src/utils_all_in_one.cpp src/params.cpp)
+
+target_link_libraries(rs_stereo 
+    ${OpenCV_LIBS}
+    ${PCL_LIBRARIES}
+    k4a
+    /home/right/RIGHT-Infer/lib/libyolo.a
+    cuda cublas cudart cudnn
+    ${TENSORRT_DIR}/lib/libnvinfer.so
+    realsense2::realsense2
+    yaml-cpp
+)
+
 add_executable(rs_ir_cap src/rs_ir_cap.cpp src/camera.cpp)
 
 target_link_libraries(rs_ir_cap 
@@ -65,5 +79,4 @@ target_link_libraries(rs_ir_cap
     ${TENSORRT_DIR}/lib/libnvinfer.so
     realsense2::realsense2
 )
-
 

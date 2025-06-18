@@ -97,11 +97,12 @@ Eigen::Vector3d FitCircle_LM(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr, doub
     return Eigen::Vector3d(c(0), c(1), c(2));
 }
 
-void Pixels_Center_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, cv::Point2f& center)
+void Pixels_Center_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, vector<float>& target2d)
 {
     for(auto& obj:objs)
     {
-        int valid = 0;
+        target2d.clear();
+        float valid = 0;
         float x_sum = 0., y_sum = 0.;
         for(int i = obj.left; i <= obj.right; i++)
         {
@@ -118,9 +119,10 @@ void Pixels_Center_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, cv::Poin
         }
         if(valid > 0)
         {
-            center = cv::Point2f(x_sum / valid, y_sum / valid);
-            cv::circle(img_in, center, 3, cv::Scalar(0, 0, 255), -1);
-            printf("Center: (%f, %f)\n", center.x, center.y);
+            target2d.push_back(x_sum / valid);
+            target2d.push_back(y_sum / valid);
+            cv::circle(img_in, cv::Point2f(target2d[0], target2d[1]), 3, cv::Scalar(0, 0, 255), -1);
+            printf("Center: (%f, %f)\n", target2d[0], target2d[1]);
         }
         else
         {

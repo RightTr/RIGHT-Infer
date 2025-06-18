@@ -110,6 +110,7 @@ class RealSense
     public:
         rs2_intrinsics intrinsics_depth;
         rs2_intrinsics intrinsics_color;
+        rs2_intrinsics intrinsics_infrared;
 
         static RealSense Create_Default();
 

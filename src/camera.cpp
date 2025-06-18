@@ -251,6 +251,9 @@ void RealSense::Configuration_Infrared_Only()
     cfg.enable_stream(RS2_STREAM_INFRARED, 1, 640, 480, RS2_FORMAT_Y8, 30);
     cfg.enable_stream(RS2_STREAM_INFRARED, 2, 640, 480, RS2_FORMAT_Y8, 30);
     profile = pipe.start(cfg);
+    rs2::video_stream_profile infrared_profile = 
+        profile.get_stream(RS2_STREAM_INFRARED).as<rs2::video_stream_profile>();
+    intrinsics_infrared = infrared_profile.get_intrinsics();
     for(auto&& sensor : profile.get_device().query_sensors()) 
     {
         if(sensor.supports(RS2_OPTION_EMITTER_ENABLED)) 

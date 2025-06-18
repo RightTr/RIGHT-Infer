@@ -91,9 +91,7 @@ Eigen::Vector3d FitCircle_LM(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr, doub
 
 void Circle_Extract(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr, Eigen::Vector2f& target2d);
 
-void Pixels_Center_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, cv::Point2f& center);
-
-void Pixels_Circle_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, vector<cv::Point2f>& target2d);
+void Pixels_Center_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, vector<float>& target2d);
 
 class FPSCounter 
 {
