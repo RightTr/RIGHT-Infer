@@ -1,36 +1,36 @@
 
-# 简介
+# Introduction
 
-本仓库基于shouxieai的[infer](https://github.com/shouxieai/infer)，实现物体的识别和分割，并提取点云信息。
+This repository is based on [infer](https://github.com/shouxieai/infer)，enabling object dectetion and segmentation, as well as stereo extraction.
 
-* 支持Azure Kinect DK [Azure-Kinect-Sensor-SDK](https://github.com/microsoft/Azure-Kinect-Sensor-SDK)  
+* Supports Azure Kinect DK via [Azure-Kinect-Sensor-SDK](https://github.com/microsoft/Azure-Kinect-Sensor-SDK)  
 
-    支持Realsense D435i [librealsense](https://github.com/IntelRealSense/librealsense)
+    Supports Realsense D435i [librealsense](https://github.com/IntelRealSense/librealsense)
 
-* 支持YOLOv8、YOLOv8-Seg
+* Supports YOLOv8、YOLOv8-Seg
   
-* C++接口，多线程，双进程，TCP通讯，串口通讯
+* Developed in C++
 
-# 环境配置
+# Environment Setup
 
-本项目依赖于OpenCV、TensorRT、PCL、CUDA库。参考CMakeLists.txt安装相关依赖和指定路径配置。
+The project depends on libraries such as OpenCV, PCL, CUDA and TensorRT. Please refet to CMakeLists.txt to install the required dependencies.
 
-# 使用方法
+# Usage
 
-## 模型导入
+## Model Import
 
 <details>
 <summary>YOLOv8</summary>
 
-详细参考[YOLOv8推理详解及部署实现](https://blog.csdn.net/qq_40672115/article/details/134276907)
+For more details, please refer to[YOLOv8推理详解及部署实现](https://blog.csdn.net/qq_40672115/article/details/134276907)
 
-1、下载YOLOv8
+1、Download ultralytics:
 
 ```bash
 git clone https://github.com/ultralytics/ultralytics.git
 ```
 
-2、修改YOLOv8源码  
+2、Modify ultralytics source code:
 
 * ultralytics/engine/exporter.py 458行
   
@@ -73,7 +73,7 @@ git clone https://github.com/ultralytics/ultralytics.git
         return y.permute(0, 2, 1) if self.export else (y, x)
 ```
 
-3、导出onnx
+3、Export to ONNX:
 
 ```python
 from ultralytics import YOLO
@@ -82,13 +82,11 @@ model = YOLO("/home/right/Infer/workspace/best.pt")
 success = model.export(format="onnx", dynamic=True, simplify=True)
 ```
 
-4、进入TensoRT路径，生成engine文件
+4、Convert ONNX to TensorRT Engine:
 
-* 进入TensorRT-8.6.1.6/targets/x86_64-linux-gnu/bin
+* Navigate to TensorRT-8.6.1.6/targets/x86_64-linux-gnu/bin
 
-* 使用trtexec将onnx文件进行转换  
-
-    记得取消换行
+* Run trtexec to convert ONNX model to TensorRT engine:  
 
 ```bash
 ./trtexec --onnx=best.onnx --saveEngine=best.engine
@@ -99,15 +97,15 @@ success = model.export(format="onnx", dynamic=True, simplify=True)
 <details>
 <summary>YOLOv8-Seg</summary>  
 
-详细参考[YOLOv8-Seg推理详解及部署实现](https://blog.csdn.net/qq_40672115/article/details/134277752)
+For more details, please refet to [YOLOv8-Seg推理详解及部署实现](https://blog.csdn.net/qq_40672115/article/details/134277752)
 
-1、下载YOLOv8  
+1、Download ultralytics:
 
 ```bash
 git clone https://github.com/ultralytics/ultralytics.git
 ```
 
-2、修改YOLOv8源码  
+2、Modify ultralytics source code: 
 
 * ultralytics/engine/exporter.py
   
@@ -148,10 +146,10 @@ git clone https://github.com/ultralytics/ultralytics.git
             return x, mc, p
         x = x.transpose(1, 2)
         # return (torch.cat([x, mc], 1), p) if self.export else (torch.cat([x[0], mc], 1), (x[1], mc, p))
-        return (torch.cat([x, mc], 1).permute(0, 2, 1), p) if self.export else (torch.cat([x[0], mc], 1), (x[1], mc, p)) #这里和推文不一样
+        return (torch.cat([x, mc], 1).permute(0, 2, 1), p) if self.export else (torch.cat([x[0], mc], 1), (x[1], mc, p)) # Note: This part is different from the blog post
 ```
 
-3、导出onnx
+3、Export to ONNX:
 
 ```python
 from ultralytics import YOLO
@@ -160,13 +158,11 @@ model = YOLO("/home/right/Infer/workspace/best_seg.pt")
 success = model.export(format="onnx", dynamic=True, simplify=True)
 ```
 
-4、进入TensoRT路径，生成engine文件
+4、Convert ONNX to TensorRT Engine:
 
-* 进入TensorRT-8.6.1.6/targets/x86_64-linux-gnu/bin
+* Navigate to TensorRT-8.6.1.6/targets/x86_64-linux-gnu/bin
 
-* 使用trtexec将onnx文件进行转换  
-
-    记得取消换行
+* Run trtexec to convert ONNX model to TensorRT engine:
 
 ```bash
 ./trtexec --onnx=best_seg.onnx --saveEngine=best_seg.transd.engine
@@ -174,30 +170,30 @@ success = model.export(format="onnx", dynamic=True, simplify=True)
 
 </details>
 
-## 参数修改
+## Parameter Configuration
   
 * kinect.yaml
-    * 相机安装位置
+    * Camera mounting position
 
-    * 点云处理参数
+    * Pointcloud processing parameters
 
 * realsense.yaml
 
 ## 运行项目
 
-* 运行Realsense进程，开始60Hz彩色流粗对齐(Coarse Alignment)。使用TCP通讯作为客户端与Kinect进程通讯，控制其线程的工作模式。
+* Run the Realsense process to start the 60Hz color stream coarse alignment. It acts as a TCP client to communicate with the Kinect process, controlling its thread operation modes.
 
 ```bash
 ./rs_process 
 ```
 
-* 运行Kinect进程，实现深度信息细对齐(Fine Alignment)。作为TCP服务端，监听Realsense进程，使用串口发送粗对齐或者细对齐的结果。
-  
+* Run the Kinect process to perform fine alignment of depth information. It serves as a TCP server, listens to the Realsense process, and uses the serial port to send the results of coarse or fine alignment.
+
 ```bash
 ./k4a_process
 ```
 
-* 使用run.sh一键启动
+* run two processes in one command.
   
 ```bash
 ./run.sh
