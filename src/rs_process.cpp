@@ -3,7 +3,6 @@
 #include "utils_all_in_one.hpp"
 #include "tcp_socket.hpp"
 #include "params.hpp"
-#include <opencv2/photo.hpp> 
 
 #define PI 3.1415926535
 
@@ -11,7 +10,7 @@ int main(int argc, char const *argv[])
 {
     Yolo yolo;
     RealSense rs = RealSense::Create_Default();
-    string engine_v8_seg = "/home/right/RIGHT-Infer/workspace/Basket_ir/best.engine";
+    string engine_v8_seg = "/home/right/RIGHT-Infer/workspace/Basket/best.engine";
     yolo::BoxArray objs;
     cv::Mat image_color;
     vector<float> center(2);

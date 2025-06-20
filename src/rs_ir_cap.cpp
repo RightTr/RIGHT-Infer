@@ -6,7 +6,7 @@ int main(int argc, char const *argv[])
 
     while(1)
     {
-        rs.Save_Image(200);
+        rs.Save_Image(800);
     }
 
     return 0;

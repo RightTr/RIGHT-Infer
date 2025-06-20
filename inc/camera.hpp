@@ -98,7 +98,7 @@ class RealSense
         cv::Mat image_rs_color, image_rs_depth;
         cv::Mat image_rs_infrared_left, image_rs_infrared_right;
         cv::Mat mask;
-        std::string output_dir = "/home/right/RIGHT-Infer/datasets/basket_ir/";
+        std::string output_dir = "/home/right/RIGHT-Infer/datasets/basket_ir_2nd/";
         int frame_count = 0;
 
         RealSense() = default;

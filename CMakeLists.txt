@@ -4,6 +4,7 @@ project(infer)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(TENSORRT_DIR "/home/right/third-party/TensorRT-8.6.1.6")
 
@@ -56,7 +57,7 @@ target_link_libraries(rs_process
 )
 
 add_executable(rs_stereo src/rs_stereo.cpp src/camera.cpp src/myinfer.cpp 
-                    src/utils_all_in_one.cpp src/params.cpp)
+                    src/utils_all_in_one.cpp src/params.cpp src/uart.cpp)
 
 target_link_libraries(rs_stereo 
     ${OpenCV_LIBS}

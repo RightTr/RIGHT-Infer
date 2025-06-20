@@ -3,8 +3,8 @@ import numpy as np
 import glob
 import os
 
-input_folder = '/home/right/RIGHT-Infer/datasets/basket_ir'     
-output_folder = '/home/right/RIGHT-Infer/datasets/basket_ir_enhanced'  
+input_folder = '/home/right/RIGHT-Infer/datasets/basket_ir_2nd'     
+output_folder = '/home/right/RIGHT-Infer/datasets/basket_ir_2nd_enhanced'  
 
 image_paths = glob.glob(os.path.join(input_folder, '*.png'))
 

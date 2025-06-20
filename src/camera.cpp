@@ -94,7 +94,7 @@ void K4a::Depth_to_Cv(cv::Mat &image_cv_depth)
 
 void K4a::Save_Image(int amount)
 {   
-    if(amount >= frame_count)
+    if(amount <= frame_count)
     {
         return ; 
     }
@@ -248,8 +248,8 @@ void RealSense::Configuration_Default()
 
 void RealSense::Configuration_Infrared_Only()
 {
-    cfg.enable_stream(RS2_STREAM_INFRARED, 1, 640, 480, RS2_FORMAT_Y8, 30);
-    cfg.enable_stream(RS2_STREAM_INFRARED, 2, 640, 480, RS2_FORMAT_Y8, 30);
+    cfg.enable_stream(RS2_STREAM_INFRARED, 1, 640, 480, RS2_FORMAT_Y8, 60);
+    cfg.enable_stream(RS2_STREAM_INFRARED, 2, 640, 480, RS2_FORMAT_Y8, 60);
     profile = pipe.start(cfg);
     rs2::video_stream_profile infrared_profile = 
         profile.get_stream(RS2_STREAM_INFRARED).as<rs2::video_stream_profile>();
@@ -408,7 +408,7 @@ void RealSense::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 
 void RealSense::Save_Image(int amount)
 {
-    if(amount >= frame_count)
+    if(amount <= frame_count)
     {
         return ; 
     }
@@ -417,7 +417,7 @@ void RealSense::Save_Image(int amount)
     cv::Mat image_infrared_saved = cv::Mat(frame_infrared.get_height(), frame_infrared.get_width(), 
                                 CV_8UC1, (void*)frame_infrared.get_data());
     image_infrared_saved.convertTo(image_infrared_saved, cv::COLOR_GRAY2BGR);
-    string filename = output_dir + "basket_" + to_string(frame_count) + ".png";
+    string filename = output_dir + "basket_2nd_" + to_string(frame_count) + ".png";
     if(cv::imwrite(filename, image_infrared_saved))
     {
         COUT_YELLOW_START
