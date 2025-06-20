@@ -1,5 +1,5 @@
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#ifndef REALSENSE_HPP
+#define REALSENSE_HPP
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
@@ -8,7 +8,6 @@
 #include <pcl/point_types.h>
 #include <pcl/io/ply_io.h>
 
-#include <k4a/k4a.hpp>
 #include <librealsense2/rs.hpp>
 #include <librealsense2/rsutil.h>
 
@@ -30,63 +29,6 @@
 #define COUT_COLOR_END      std::cout << "\033[0m";
 
 #define MIN_DISTANCE 2.0
-
-class K4a
-{
-    private:
-        k4a::device device;
-        k4a_device_configuration_t config;
-        k4a::capture capture;
-        int device_count;
-        k4a::image image_k4a_color, image_k4a_depth, image_k4a_infrared;
-        k4a::image image_k4a_depth_to_color;
-        k4a_calibration_camera_t depth_intrinsics;
-        k4a_calibration_camera_t color_intrinsics;
-        k4a::calibration k4aCalibration;
-        k4a::transformation k4aTransformation;
-        std::string output_dir = "/home/right/Datasets/Basket/";
-        int frame_count = 0;
-
-    public:
-        bool Open();   
-
-        void Installed_Count(); 
-
-        void Configuration();
-
-        void Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth);
-
-        void Color_to_Cv(cv::Mat &image_cv_color);
-
-        void Depth_to_Cv(cv::Mat &image_cv_depth);
-
-        void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray &objs);
-
-        void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray &objs);
-
-        void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArray &objs);
-
-        void Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
-
-        void Save_Image(int amount);
-
-        K4a()
-        {
-            Installed_Count();
-            if(Open())
-            {
-                Configuration();
-            }
-        }
-        
-        ~K4a()
-        {
-            image_k4a_depth.reset();
-            image_k4a_color.reset();
-            capture.reset();
-            device.close();
-        }
-};
 
 class RealSense
 {

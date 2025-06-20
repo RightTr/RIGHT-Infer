@@ -1,4 +1,4 @@
-#include "camera.hpp"
+#include "azurekinect.hpp"
 #include "myinfer.hpp"
 #include "utils_all_in_one.hpp"
 #include "mythread.hpp"

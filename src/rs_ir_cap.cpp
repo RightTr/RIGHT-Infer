@@ -1,4 +1,4 @@
-#include "camera.hpp"
+#include "realsense.hpp"
 
 int main(int argc, char const *argv[])
 {

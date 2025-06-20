@@ -26,7 +26,7 @@ include_directories(
     ${PCL_INCLUDE_DIRS}/include
 )
 
-add_executable(k4a_process src/k4a_process.cpp src/camera.cpp src/myinfer.cpp 
+add_executable(k4a_process src/k4a_process.cpp src/azurekinect.cpp src/myinfer.cpp 
                     src/utils_all_in_one.cpp src/mythread.cpp
                     src/uart.cpp src/params.cpp)
 
@@ -38,17 +38,15 @@ target_link_libraries(k4a_process
     cuda cublas cudart cudnn
     ${TENSORRT_DIR}/lib/libnvinfer.so
     Threads::Threads
-    realsense2::realsense2
     yaml-cpp
 )
 
-add_executable(rs_process src/rs_process.cpp src/camera.cpp src/myinfer.cpp 
+add_executable(rs_process src/rs_process.cpp src/realsense.cpp src/myinfer.cpp 
                     src/utils_all_in_one.cpp src/params.cpp)
 
 target_link_libraries(rs_process 
     ${OpenCV_LIBS}
     ${PCL_LIBRARIES}
-    k4a
     /home/right/RIGHT-Infer/lib/libyolo.a
     cuda cublas cudart cudnn
     ${TENSORRT_DIR}/lib/libnvinfer.so
@@ -56,13 +54,12 @@ target_link_libraries(rs_process
     yaml-cpp
 )
 
-add_executable(rs_stereo src/rs_stereo.cpp src/camera.cpp src/myinfer.cpp 
+add_executable(rs_stereo src/rs_stereo.cpp src/realsense.cpp src/myinfer.cpp 
                     src/utils_all_in_one.cpp src/params.cpp src/uart.cpp)
 
 target_link_libraries(rs_stereo 
     ${OpenCV_LIBS}
     ${PCL_LIBRARIES}
-    k4a
     /home/right/RIGHT-Infer/lib/libyolo.a
     cuda cublas cudart cudnn
     ${TENSORRT_DIR}/lib/libnvinfer.so
@@ -70,11 +67,10 @@ target_link_libraries(rs_stereo
     yaml-cpp
 )
 
-add_executable(rs_ir_cap src/rs_ir_cap.cpp src/camera.cpp)
+add_executable(rs_ir_cap src/rs_ir_cap.cpp src/realsense.cpp)
 
 target_link_libraries(rs_ir_cap 
     ${OpenCV_LIBS}
-    k4a
     /home/right/RIGHT-Infer/lib/libyolo.a
     cuda cublas cudart cudnn
     ${TENSORRT_DIR}/lib/libnvinfer.so
