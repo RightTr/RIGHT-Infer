@@ -23,7 +23,7 @@ void RealSense::Configuration_Infrared_Only()
     rs2::video_stream_profile infrared_profile = 
         profile.get_stream(RS2_STREAM_INFRARED).as<rs2::video_stream_profile>();
     intrinsics_infrared = infrared_profile.get_intrinsics();
-    for(auto&& sensor : profile.get_device().query_sensors()) 
+    for(auto&& sensor : profile.get_device().query_sensors()) // Disable the infrared laser emitter of RealSense camera
     {
         if(sensor.supports(RS2_OPTION_EMITTER_ENABLED)) 
         {

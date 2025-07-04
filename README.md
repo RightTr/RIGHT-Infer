@@ -173,28 +173,38 @@ success = model.export(format="onnx", dynamic=True, simplify=True)
 ## Parameter Configuration
   
 * kinect.yaml
-    * Camera mounting position
 
-    * Pointcloud processing parameters
+  * Camera mounting position
+
+  * Pointcloud processing parameters
 
 * realsense.yaml
 
-## 运行项目
+## How do I use it?
 
-* Run the Realsense process to start the 60Hz color stream coarse alignment. It acts as a TCP client to communicate with the Kinect process, controlling its thread operation modes.
+* Coarse_to_Fine Alignment
 
-```bash
-./rs_process 
-```
+  * Run the Realsense process to start the 60Hz color stream coarse alignment. It acts as a TCP client to communicate with the Kinect process, controlling its thread operation modes.
 
-* Run the Kinect process to perform fine alignment of depth information. It serves as a TCP server, listens to the Realsense process, and uses the serial port to send the results of coarse or fine alignment.
+    ```bash
+    ./rs_coarse 
+    ```
 
-```bash
-./k4a_process
-```
+  * Run the Kinect process to perform fine alignment of depth information. It serves as a TCP server, listens to the Realsense process, and uses the serial port to send the results of coarse or fine alignment.
 
-* run two processes in one command.
+    ```bash
+    ./k4a_fine
+    ```
+
+  * run two processes in one command.
+
+    ```bash
+    ./run.sh
+    ```
   
-```bash
-./run.sh
-```
+* RealSense Stereo Alignment
+    We use the stereo infrared channels from RealSense as input. And YOLO_based detection is applied seperately to both IR channels to obtain the object centers. By leverageing disparty between the two streams to estimate the depth and compute the 3D position of the object using the camera intrinsic parameters.
+  
+    ```bash
+    ./rs_stereo
+    ```

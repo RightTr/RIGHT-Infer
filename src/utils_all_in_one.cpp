@@ -97,13 +97,15 @@ Eigen::Vector3d FitCircle_LM(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr, doub
     return Eigen::Vector3d(c(0), c(1), c(2));
 }
 
-void Pixels_Center_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, vector<float>& target2d)
+void Pixels_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, vector<float>& target2d)
 {
     for(auto& obj:objs)
     {
         target2d.clear();
         float valid = 0;
         float x_sum = 0., y_sum = 0.;
+        float top_y = INT_MAX, bottom_y = INT_MIN;
+        float left_x = INT_MAX, right_x = INT_MIN;
         for(int i = obj.left; i <= obj.right; i++)
         {
             for(int j = obj.top; j <= obj.bottom; j++)
@@ -113,6 +115,10 @@ void Pixels_Center_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, vector<f
                 {
                     x_sum += i;
                     y_sum += j;
+                    if (j < top_y) top_y = j;
+                    if (j > bottom_y) bottom_y = j;
+                    if (i < left_x) left_x = i;
+                    if (i > right_x) right_x = i;
                     valid++;
                 }
             }
@@ -120,9 +126,16 @@ void Pixels_Center_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, vector<f
         if(valid > 0)
         {
             target2d.push_back(x_sum / valid);
-            target2d.push_back(y_sum / valid);
-            cv::circle(img_in, cv::Point2f(target2d[0], target2d[1]), 3, cv::Scalar(0, 0, 255), -1);
+            target2d.push_back(left_x);     
+            target2d.push_back(right_x);    
+            cv::circle(img_in, cv::Point2f(target2d[0], y_sum / valid), 3, cv::Scalar(0, 0, 255), -1);
+            cv::circle(img_in, cv::Point(left_x, (top_y + bottom_y) / 2), 3, cv::Scalar(255, 0, 255), -1); 
+            cv::circle(img_in, cv::Point(right_x, (top_y + bottom_y) / 2), 3, cv::Scalar(0, 255, 0), -1); 
+            cv::circle(img_in, cv::Point((left_x + right_x) / 2, top_y), 3, cv::Scalar(255, 0, 0), -1); 
+            cv::circle(img_in, cv::Point((left_x + right_x) / 2, bottom_y), 3, cv::Scalar(255, 255, 0), -1); 
+
             printf("Center: (%f, %f)\n", target2d[0], target2d[1]);
+            printf("Edge Points - Left: %f, Right: %f\n", left_x, right_x);
         }
         else
         {
@@ -130,4 +143,3 @@ void Pixels_Center_Extract(const yolo::BoxArray& objs, cv::Mat& img_in, vector<f
         }
     }
 }
-

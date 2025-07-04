@@ -26,11 +26,11 @@ include_directories(
     ${PCL_INCLUDE_DIRS}/include
 )
 
-add_executable(k4a_process src/k4a_process.cpp src/azurekinect.cpp src/myinfer.cpp 
+add_executable(k4a_fine src/k4a_fine.cpp src/azurekinect.cpp src/myinfer.cpp 
                     src/utils_all_in_one.cpp src/mythread.cpp
                     src/uart.cpp src/params.cpp)
 
-target_link_libraries(k4a_process 
+target_link_libraries(k4a_fine 
     ${OpenCV_LIBS}
     ${PCL_LIBRARIES}
     k4a
@@ -41,10 +41,20 @@ target_link_libraries(k4a_process
     yaml-cpp
 )
 
-add_executable(rs_process src/rs_process.cpp src/realsense.cpp src/myinfer.cpp 
+add_executable(k4a_rgb_cap src/k4a_rgb_cap.cpp src/azurekinect.cpp)
+
+target_link_libraries(k4a_rgb_cap 
+    ${OpenCV_LIBS}
+    /home/right/RIGHT-Infer/lib/libyolo.a
+    cuda cublas cudart cudnn
+    ${TENSORRT_DIR}/lib/libnvinfer.so
+    k4a
+)
+
+add_executable(rs_coarse src/rs_coarse.cpp src/realsense.cpp src/myinfer.cpp 
                     src/utils_all_in_one.cpp src/params.cpp)
 
-target_link_libraries(rs_process 
+target_link_libraries(rs_coarse 
     ${OpenCV_LIBS}
     ${PCL_LIBRARIES}
     /home/right/RIGHT-Infer/lib/libyolo.a

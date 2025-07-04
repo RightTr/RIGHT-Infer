@@ -41,7 +41,7 @@ int main(int argc, char const *argv[])
         cout << image_infrared_left.channels() << endl;
         yolo.Single_Inference(image_infrared_left, objs);
         rs.Color_With_Mask(image_infrared_left, objs);
-        Pixels_Center_Extract(objs, image_color, center);
+        // Pixels_Center_Extract(objs, image_color, center);
         angle_diffx = atan2f((center[0] - cx), fx) * 180 / PI;
         if(angle_diffx < 5. && angle_diffx > -5.)
         {

@@ -8,15 +8,15 @@ bool K4a::Open()
     try
     {
         device = k4a::device::open(K4A_DEVICE_DEFAULT);
-        COUT_RED_START
-        cerr << "Open K4a Device Error!" << endl;
+        COUT_GREEN_START
+        cout << "Open K4a Device Success!" << endl;
         COUT_COLOR_END
         return true;
     }
     catch(const std::exception& e)
     {
-        COUT_GREEN_START
-        cout << "Open K4a Device Success!" << endl;
+        COUT_RED_START
+        cerr << "Open K4a Device Error!" << endl;
         COUT_COLOR_END
         return false;
     }
@@ -58,7 +58,7 @@ void K4a::Configuration()
 
 void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
 {   
-    if(device.get_capture(&capture, chrono::milliseconds(10)));
+    if(device.get_capture(&capture, chrono::milliseconds(1000)));
     {    
         image_k4a_color = capture.get_color_image();
         image_k4a_depth = capture.get_depth_image();
@@ -73,7 +73,7 @@ void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)
 
 void K4a::Color_to_Cv(cv::Mat &image_cv_color)
 {
-    if(device.get_capture(&capture, chrono::milliseconds(10)));
+    if(device.get_capture(&capture, chrono::milliseconds(1000)));
     {    
         image_k4a_color = capture.get_color_image();
         image_cv_color = cv::Mat(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC4, image_k4a_color.get_buffer());
@@ -83,7 +83,7 @@ void K4a::Color_to_Cv(cv::Mat &image_cv_color)
 
 void K4a::Depth_to_Cv(cv::Mat &image_cv_depth)
 {
-    if(device.get_capture(&capture, chrono::milliseconds(10)));
+    if(device.get_capture(&capture, chrono::milliseconds(1000)));
     {    
         image_k4a_depth = capture.get_depth_image();
         image_k4a_depth_to_color = k4aTransformation.depth_image_to_color_camera(image_k4a_depth);
@@ -94,7 +94,7 @@ void K4a::Depth_to_Cv(cv::Mat &image_cv_depth)
 
 void K4a::Save_Image(int amount)
 {   
-    if(amount <= frame_count)
+    if(frame_count >= amount)
     {
         return ; 
     }
@@ -117,7 +117,7 @@ void K4a::Save_Image(int amount)
             COUT_COLOR_END
         }
         image_saved.release();
-        usleep(50000);
+        usleep(5000);
     }
 }
 

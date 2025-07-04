@@ -40,7 +40,7 @@ class K4a
         k4a_calibration_camera_t color_intrinsics;
         k4a::calibration k4aCalibration;
         k4a::transformation k4aTransformation;
-        std::string output_dir = "/home/right/Datasets/Basket/";
+        std::string output_dir = "/home/right/Datasets/Basket_final/";
         int frame_count = 0;
 
     public:
