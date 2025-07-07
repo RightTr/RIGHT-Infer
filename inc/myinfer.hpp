@@ -9,8 +9,9 @@
 
 #include <chrono>
 
-static const char *labels[] = {
-    "Basket"
+static const char *labels[] = { // TODO: Add labels
+    "Basket",
+    "Target"
 };
 
 class Yolo

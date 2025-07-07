@@ -175,7 +175,7 @@ void RealSense::Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud)
 
 }
 
-void RealSense::Save_Image(int amount)
+void RealSense::Save_Image(int amount, std::string output_dir)
 {
     if(amount <= frame_count)
     {

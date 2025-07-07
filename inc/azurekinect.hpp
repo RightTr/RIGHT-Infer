@@ -13,6 +13,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <memory>
+#include <string>
 
 #include "yolo.hpp"
 
@@ -40,7 +41,6 @@ class K4a
         k4a_calibration_camera_t color_intrinsics;
         k4a::calibration k4aCalibration;
         k4a::transformation k4aTransformation;
-        std::string output_dir = "/home/right/Datasets/Basket_final/";
         int frame_count = 0;
 
     public:
@@ -64,7 +64,7 @@ class K4a
 
         void Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
-        void Save_Image(int amount);
+        void Save_Image(int amount, std::string output_dir);
 
         K4a()
         {

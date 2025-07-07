@@ -92,7 +92,7 @@ void K4a::Depth_to_Cv(cv::Mat &image_cv_depth)
     }
 }
 
-void K4a::Save_Image(int amount)
+void K4a::Save_Image(int amount, std::string output_dir)
 {   
     if(frame_count >= amount)
     {
@@ -102,11 +102,11 @@ void K4a::Save_Image(int amount)
     {
         image_k4a_color = capture.get_color_image();
         cv::Mat image_saved = cv::Mat(image_k4a_color.get_height_pixels(), image_k4a_color.get_width_pixels(), CV_8UC4, image_k4a_color.get_buffer());
-        string filename = output_dir + "basket_" + to_string(frame_count) + ".png";
+        string filename = output_dir + "obj_" + to_string(frame_count) + ".png";
         if(cv::imwrite(filename, image_saved))
         {
             COUT_YELLOW_START
-            cout << "Save basket_" << frame_count << ".png Success!" << endl;
+            cout << "Save obj_" << frame_count << ".png Success!" << endl;
             COUT_COLOR_END
             frame_count++;
         }

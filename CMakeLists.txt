@@ -87,3 +87,13 @@ target_link_libraries(rs_ir_cap
     realsense2::realsense2
 )
 
+add_executable(k4a_debug src/k4a_debug.cpp src/azurekinect.cpp src/myinfer.cpp)
+
+target_link_libraries(k4a_debug 
+    ${OpenCV_LIBS}
+    ${PCL_LIBRARIES}
+    k4a
+    /home/right/RIGHT-Infer/lib/libyolo.a
+    cuda cublas cudart cudnn
+    ${TENSORRT_DIR}/lib/libnvinfer.so
+)

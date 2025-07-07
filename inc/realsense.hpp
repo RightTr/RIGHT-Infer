@@ -15,6 +15,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <memory>
+#include <string>
 
 #include "yolo.hpp"
 
@@ -40,7 +41,6 @@ class RealSense
         cv::Mat image_rs_color, image_rs_depth;
         cv::Mat image_rs_infrared_left, image_rs_infrared_right;
         cv::Mat mask;
-        std::string output_dir = "/home/right/RIGHT-Infer/datasets/basket_ir_2nd/";
         int frame_count = 0;
 
         RealSense() = default;
@@ -74,7 +74,7 @@ class RealSense
 
         void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
-        void Save_Image(int amount);
+        void Save_Image(int amount, std::string output_dir);
 
         ~RealSense() = default;
 
