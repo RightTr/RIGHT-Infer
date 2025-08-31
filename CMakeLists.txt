@@ -41,16 +41,6 @@ target_link_libraries(k4a_fine
     yaml-cpp
 )
 
-add_executable(k4a_rgb_cap src/k4a_rgb_cap.cpp src/azurekinect.cpp)
-
-target_link_libraries(k4a_rgb_cap 
-    ${OpenCV_LIBS}
-    /home/right/RIGHT-Infer/lib/libyolo.a
-    cuda cublas cudart cudnn
-    ${TENSORRT_DIR}/lib/libnvinfer.so
-    k4a
-)
-
 add_executable(rs_coarse src/rs_coarse.cpp src/realsense.cpp src/myinfer.cpp 
                     src/utils_all_in_one.cpp src/params.cpp)
 
@@ -77,16 +67,6 @@ target_link_libraries(rs_stereo
     yaml-cpp
 )
 
-add_executable(rs_ir_cap src/rs_ir_cap.cpp src/realsense.cpp)
-
-target_link_libraries(rs_ir_cap 
-    ${OpenCV_LIBS}
-    /home/right/RIGHT-Infer/lib/libyolo.a
-    cuda cublas cudart cudnn
-    ${TENSORRT_DIR}/lib/libnvinfer.so
-    realsense2::realsense2
-)
-
 add_executable(k4a_debug src/k4a_debug.cpp src/azurekinect.cpp src/myinfer.cpp)
 
 target_link_libraries(k4a_debug 
@@ -97,3 +77,5 @@ target_link_libraries(k4a_debug
     cuda cublas cudart cudnn
     ${TENSORRT_DIR}/lib/libnvinfer.so
 )
+
+add_subdirectory(src/tools tools)

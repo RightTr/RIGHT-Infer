@@ -6,16 +6,6 @@ datasets
 
 runs
 
-workspace/model_past
-
-workspace/Target
-
-workspace/Basket
-
-workspace/Basket_ir
-
-workspace/pcl
-
 yolo11n.pt
 
 rs_color.zip
