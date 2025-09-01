@@ -22,6 +22,8 @@ link_directories(
 
 include_directories(
     inc
+    inc/yolo
+    inc/plnet
     ${TENSORRT_DIR}/include
     ${PCL_INCLUDE_DIRS}/include
 )
