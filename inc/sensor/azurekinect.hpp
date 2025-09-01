@@ -4,18 +4,11 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/io/ply_io.h>
-
 #include <k4a/k4a.hpp>
 
 #include <iostream>
 #include <unistd.h>
-#include <memory>
 #include <string>
-
-#include "yolo.hpp"
 
 #define COUT_RED_START      std::cout << "\033[1;31m";
 #define COUT_GREEN_START    std::cout << "\033[1;32m";
@@ -26,8 +19,6 @@
 #define COUT_WHITE_START    std::cout << "\033[1;37m";
 #define COUT_COLOR_END      std::cout << "\033[0m";
 
-#define MIN_DISTANCE 2.0
-
 class K4a
 {
     private:
@@ -35,12 +26,15 @@ class K4a
         k4a_device_configuration_t config;
         k4a::capture capture;
         int device_count;
+        k4a::calibration k4aCalibration;
+        k4a::transformation k4aTransformation;
+        
+
+    protected:
         k4a::image image_k4a_color, image_k4a_depth, image_k4a_infrared;
         k4a::image image_k4a_depth_to_color;
         k4a_calibration_camera_t depth_intrinsics;
         k4a_calibration_camera_t color_intrinsics;
-        k4a::calibration k4aCalibration;
-        k4a::transformation k4aTransformation;
         int frame_count = 0;
 
     public:
@@ -55,14 +49,6 @@ class K4a
         void Color_to_Cv(cv::Mat &image_cv_color);
 
         void Depth_to_Cv(cv::Mat &image_cv_depth);
-
-        void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray &objs);
-
-        void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray &objs);
-
-        void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud, yolo::BoxArray &objs);
-
-        void Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
         void Save_Image(int amount, std::string output_dir);
 

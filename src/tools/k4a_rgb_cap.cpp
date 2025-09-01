@@ -1,4 +1,4 @@
-#include "azurekinect.hpp"
+#include "sensor/azurekinect.hpp"
 
 int main(int argc, char const *argv[])
 {

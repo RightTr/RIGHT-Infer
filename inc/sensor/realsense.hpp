@@ -4,21 +4,12 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/io/ply_io.h>
-
 #include <librealsense2/rs.hpp>
 #include <librealsense2/rsutil.h>
 
-
 #include <iostream>
 #include <unistd.h>
-#include <memory>
 #include <string>
-
-#include "yolo.hpp"
-
 
 #define COUT_RED_START      std::cout << "\033[1;31m";
 #define COUT_GREEN_START    std::cout << "\033[1;32m";
@@ -38,10 +29,6 @@ class RealSense
         rs2::config cfg;
         rs2::pipeline_profile profile;
         rs2::frameset frameset;
-        cv::Mat image_rs_color, image_rs_depth;
-        cv::Mat image_rs_infrared_left, image_rs_infrared_right;
-        cv::Mat mask;
-        int frame_count = 0;
 
         RealSense() = default;
 
@@ -49,10 +36,15 @@ class RealSense
 
         void Configuration_Infrared_Only();
 
-    public:
+    protected:
+        cv::Mat image_rs_color, image_rs_depth;
+        cv::Mat image_rs_infrared_left, image_rs_infrared_right;
         rs2_intrinsics intrinsics_depth;
         rs2_intrinsics intrinsics_color;
         rs2_intrinsics intrinsics_infrared;
+        int frame_count = 0;
+
+    public:
 
         static RealSense Create_Default();
 
@@ -65,14 +57,6 @@ class RealSense
         void Color_to_Cv(cv::Mat &image_cv_color);
 
         void Infrared_to_Cv(cv::Mat &image_cv_infrared_left, cv::Mat &image_cv_infrared_right);
-
-        void Color_With_Mask(cv::Mat &image_cv_color, yolo::BoxArray objs);
-
-        void Depth_With_Mask(cv::Mat &image_cv_depth, yolo::BoxArray objs);
-
-        void Value_Depth_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
-
-        void Value_Mask_to_Pcl(pcl::PointCloud<pcl::PointXYZ> &cloud);
 
         void Save_Image(int amount, std::string output_dir);
 

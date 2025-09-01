@@ -9,7 +9,7 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 
-#include "3rdparty/tensorrtbuffer/include/buffers.h"
+#include "buffers.h"
 #include "read_configs.h"
 
 using tensorrt_buffer::TensorRTUniquePtr;
@@ -22,8 +22,6 @@ class PLNet {
 
   bool infer(const cv::Mat &image, Eigen::Matrix<float, 259, Eigen::Dynamic> &features, 
       std::vector<Eigen::Vector4d>& lines, Eigen::Matrix<float, 259, Eigen::Dynamic>& junctions, bool junction_detection = false);
-
-  bool infer(const cv::Mat &image, std::vector<Eigen::Vector4d>& lines); // Only Detect lines
 
   void save_engine();
 
@@ -74,8 +72,6 @@ class PLNet {
 
   bool process_output(const tensorrt_buffer::BufferManager &buffers, Eigen::Matrix<float, 259, Eigen::Dynamic> &features, 
       std::vector<Eigen::Vector4d>& lines, Eigen::Matrix<float, 259, Eigen::Dynamic>& junctions, bool junction_detection);
-    
-  bool process_output(const tensorrt_buffer::BufferManager &buffers, std::vector<Eigen::Vector4d>& lines); // Only generate lines 
 
   bool wireframe_matcher(const float* iskeep, const float* idx_junc_to_end_min, const float* idx_junc_to_end_max);
 

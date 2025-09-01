@@ -1,7 +1,7 @@
 //
 // Created by haoyuefan on 2021/9/22.
 //
-#include "plnet.h"
+#include "plnet/plnet.h"
 
 #include <memory>
 #include <opencv2/opencv.hpp>
@@ -243,30 +243,6 @@ bool PLNet::infer(const cv::Mat &image, Eigen::Matrix<float, 259, Eigen::Dynamic
   return true;
 }
 
-bool PLNet::infer(const cv::Mat &image, std::vector<Eigen::Vector4d>& lines) {
-
-  context0_->setBindingDimensions(image_input_index_, nvinfer1::Dims4(1, 1, resized_height, resized_width));
-
-  BufferManager buffers0(engine0_, 0, context0_.get());
-
-  if (!process_image(buffers0, image)) {
-    return false;
-  }
-  buffers0.copyInputToDevice();
-
-  bool status = context0_->executeV2(buffers0.getDeviceBindings().data());
-  if (!status) {
-    return false;
-  }
-  buffers0.copyOutputToHost();
-
-  if (!process_output(buffers0, features, lines, junctions, junction_detection)) {
-    return false;
-  }
-           
-  return true;
-}
-
 bool PLNet::process_image(const BufferManager &buffers, const cv::Mat &image) {
   if (image.empty()) return false;
 
@@ -473,142 +449,6 @@ bool PLNet::junction_detector(const float* scores, const float* descriptors,
 
 bool PLNet::process_output(const BufferManager &buffers, Eigen::Matrix<float, 259, Eigen::Dynamic> &features, 
     std::vector<Eigen::Vector4d>& lines, Eigen::Matrix<float, 259, Eigen::Dynamic>& junctions, bool junction_detection) {
-
-  auto *iskeep = static_cast<float *>(buffers.getHostBuffer("iskeep"));                            // 1x3x128x128
-  auto *idx_junc_to_end_min = static_cast<float *>(buffers.getHostBuffer("idx_junc_to_end_min"));  // 1x3x128x128
-  auto *idx_junc_to_end_max = static_cast<float *>(buffers.getHostBuffer("idx_junc_to_end_max"));  // 1x3x128x128
-  auto *juncs_pred = static_cast<float *>(buffers.getHostBuffer("juncs_pred"));                    // 1x3x128x128
-  auto *lines_pred = static_cast<float *>(buffers.getHostBuffer("lines_pred"));                    // 1x3x128x128
-  auto *loi_features = static_cast<float *>(buffers.getHostBuffer("loi_features"));                // 1x3x128x128
-  auto *loi_features_thin = static_cast<float *>(buffers.getHostBuffer("loi_features_thin"));      // 1x3x128x128
-  auto *loi_features_aux = static_cast<float *>(buffers.getHostBuffer("loi_features_aux"));        // 1x3x128x128
-  auto *scores = static_cast<float *>(buffers.getHostBuffer("scores"));                            // 1x512x512
-  auto *descriptors = static_cast<float *>(buffers.getHostBuffer("descriptors"));                  // 1x256x64x64
-
-  if(!wireframe_matcher(iskeep, idx_junc_to_end_min, idx_junc_to_end_max)){
-    return false;
-  }
-
-  context1_->setBindingDimensions(juncs_pred_index_, nvinfer1::Dims2(300, 2));
-  context1_->setBindingDimensions(lines_pred_index_, nvinfer1::Dims2(128 * 128 * 3, 4));
-  context1_->setBindingDimensions(idx_lines_for_junctions_index_, nvinfer1::Dims2((int)idx_lines_for_junctions_unique_.size(), 2));
-  context1_->setBindingDimensions(inverse_index_, nvinfer1::Dims2((int)inverse_.size(), 1));
-  context1_->setBindingDimensions(is_keep_index_index_, nvinfer1::Dims2((int)is_keep_index_.size(), 1));
-  context1_->setBindingDimensions(loi_features_index_, nvinfer1::Dims4(1, 128, 128, 128));
-  context1_->setBindingDimensions(loi_features_thin_index_, nvinfer1::Dims4(1, 4, 128, 128));
-  context1_->setBindingDimensions(loi_features_aux_index_, nvinfer1::Dims4(1, 4, 128, 128));
-
-  BufferManager buffers1(engine1_, 0, context1_.get());
-
-  auto *juncs_pred_hbuffer = static_cast<float *>(buffers1.getHostBuffer("juncs_pred"));
-  auto *lines_pred_hbuffer = static_cast<float *>(buffers1.getHostBuffer("lines_pred"));
-  auto *idx_lines_for_junctions_hbuffer = static_cast<float *>(buffers1.getHostBuffer("idx_lines_for_junctions"));
-  auto *inverse_hbuffer = static_cast<float *>(buffers1.getHostBuffer("inverse"));
-  auto *iskeep_index_hbuffer = static_cast<float *>(buffers1.getHostBuffer("iskeep_index"));
-  auto *loi_features_hbuffer = static_cast<float *>(buffers1.getHostBuffer("loi_features"));
-  auto *loi_features_thin_hbuffer = static_cast<float *>(buffers1.getHostBuffer("loi_features_thin"));
-  auto *loi_features_aux_hbuffer = static_cast<float *>(buffers1.getHostBuffer("loi_features_aux"));
-
-  memcpy(juncs_pred_hbuffer, juncs_pred, 300 * 2 * sizeof(float));
-  memcpy(lines_pred_hbuffer, lines_pred, 128 * 128 * 3 * 4 * sizeof(float));
-  memcpy(loi_features_hbuffer, loi_features, 128 * 128 * 128 * sizeof(float));
-  memcpy(loi_features_thin_hbuffer, loi_features_thin, 128 * 128 * 4 * sizeof(float));
-  memcpy(loi_features_aux_hbuffer, loi_features_aux, 128 * 128 * 4 * sizeof(float));
-
-  int index = 0;
-  for (auto &i : idx_lines_for_junctions_unique_) {
-    idx_lines_for_junctions_hbuffer[index] = (float)i.first;
-    idx_lines_for_junctions_hbuffer[index + 1] = (float)i.second;
-    index = index + 2;
-  }
-
-  for (int i = 0; i < is_keep_index_.size(); ++i) {
-    iskeep_index_hbuffer[i] = (float)is_keep_index_[i];
-  }
-
-  for (int i = 0; i < inverse_.size(); ++i) {
-    inverse_hbuffer[i] = (float)inverse_[i];
-  }
-
-  buffers1.copyInputToDevice();
-  bool status = context1_->executeV2(buffers1.getDeviceBindings().data());
-  if (!status) {
-    return false;
-  }
-  buffers1.copyOutputToHost();
-
-  auto *line_ajusted_hbuffer = static_cast<float *>(buffers1.getHostBuffer("lines_adjusted"));
-  auto *scores_line_hbuffer = static_cast<float *>(buffers1.getHostBuffer("scores_line"));
-
-  std::vector<std::vector<bool>> junction_map(resized_height, std::vector<bool>(resized_width, false));
-  const float length_square_threshold = plnet_config_.line_length_threshold * plnet_config_.line_length_threshold;
-  for (int i = 0; i < idx_lines_for_junctions_unique_.size(); ++i) {
-    if (scores_line_hbuffer[i] < 0.5) continue;
-
-    float x1 = line_ajusted_hbuffer[i * 4] * 4;
-    float y1 = line_ajusted_hbuffer[i * 4 + 1] * 4;
-    float x2 = line_ajusted_hbuffer[i * 4 + 2] * 4;
-    float y2 = line_ajusted_hbuffer[i * 4 + 3] * 4;
-
-    int xi1 = (int)(x1+0.1); // x1, x2, y1, and y2 are converted from int in fact.
-    int yi1 = (int)(y1+0.1);
-    int xi2 = (int)(x2+0.1);
-    int yi2 = (int)(y2+0.1);
-    int border = std::max(plnet_config_.remove_borders, 0);
-    bool p1_valid = (xi1 > border) && (xi1 < resized_width - border) && (yi1 > border) && (yi1 < resized_height - border);
-    bool p2_valid = (xi2 > border) && (xi2 < resized_width - border) && (yi2 > border) && (yi2 < resized_height - border);
-    junction_map[yi1][xi1] = p1_valid;
-    junction_map[yi2][xi2] = p2_valid;
-
-    if(scores_line_hbuffer[i] < plnet_config_.line_threshold) continue;
-
-    float length_square = (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1);
-    if(length_square < length_square_threshold) continue;
-
-    lines.emplace_back(x1, y1, x2, y2);
-
-    // add some junctions to keypoints by add scores
-    // if(scores_line_hbuffer[i] > 0.8 && junction_detection){
-    //   if(p1_valid){
-    //     int idx1 = xi1 + yi1 * resized_width;
-    //     *(scores + idx1) += plnet_config_.keypoint_threshold;
-    //   }
-
-    //   if(p2_valid){
-    //     int idx2 = xi2 + yi2 * resized_width;
-    //     *(scores + idx2) += plnet_config_.keypoint_threshold;
-    //   }
-    // }
-  }
-
-  if(!keypoints_decoder(scores, descriptors, features)){
-    return false;
-  }
-
-
-  if(junction_detection){
-    if(!junction_detector(scores, descriptors, junction_map, junctions)){
-      return false;
-    }
-    junctions.block(1, 0, 1, junctions.cols()) = junctions.block(1, 0, 1, junctions.cols()) * w_scale;
-    junctions.block(2, 0, 1, junctions.cols()) = junctions.block(2, 0, 1, junctions.cols()) * h_scale;
-  }
-
-  // re-scale
-  features.block(1, 0, 1, features.cols()) = features.block(1, 0, 1, features.cols()) * w_scale;
-  features.block(2, 0, 1, features.cols()) = features.block(2, 0, 1, features.cols()) * h_scale;
-
-  for(int i = 0; i < lines.size(); i++){
-    lines[i][0] *= w_scale;
-    lines[i][1] *= h_scale;
-    lines[i][2] *= w_scale;
-    lines[i][3] *= h_scale;
-  }
-
-  return true;
-}
-
-bool PLNet::process_output(const BufferManager &buffers, std::vector<Eigen::Vector4d>& lines) {
 
   auto *iskeep = static_cast<float *>(buffers.getHostBuffer("iskeep"));                            // 1x3x128x128
   auto *idx_junc_to_end_min = static_cast<float *>(buffers.getHostBuffer("idx_junc_to_end_min"));  // 1x3x128x128

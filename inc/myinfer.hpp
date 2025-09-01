@@ -3,9 +3,9 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "cpm.hpp"
-#include "infer.hpp"
-#include "yolo.hpp"
+#include "yolo/cpm.hpp"
+#include "yolo/infer.hpp"
+#include "yolo/yolo.hpp"
 
 #include <chrono>
 
