@@ -1,39 +1,31 @@
 #include "sensor/azurekinect_infer.hpp"
-// #include "myinfer.hpp"
-// #include "plnet/plnet.h"
+#include "featdetector/myinfer.hpp"
 
 
 int main(int argc, char const *argv[])
 {
     K4a_Infer k4a_infer;
-    // Yolo yolo;
-    std::string engine_v8_seg = "/home/right/RIGHT-Infer/workspace/Basket&Target/best.engine";
-    // yolo::BoxArray objs;
-    cv::Mat image_color, image_depth;
-    int index = 0;
+    std::string plnet_config_path = "/home/right/RIGHT-Infer/config/feature_detector.yaml";
+    std::string plnet_model_dir = "/home/right/RIGHT-Infer/models";
+    YAML::Node file_node = YAML::LoadFile(plnet_config_path);
+    PLNetConfig plnet_config;
+    plnet_config.Load(file_node);
+    plnet_config.SetModelPath(plnet_model_dir);
 
+    auto feature_detector = std::shared_ptr<FeatureDetector>(new FeatureDetector(plnet_config));
+    
     while(1)
     {   
+        cv::Mat image_color, image_gray;
+        Eigen::Matrix<float, 259, Eigen::Dynamic> features;
+        std::vector<Eigen::Vector4d> lines;
         k4a_infer.Color_to_Cv(image_color);
-        // yolo.Yolov8_Seg_Enable(engine_v8_seg);
+        cv::cvtColor(image_color, image_gray, cv::COLOR_BGR2GRAY);
+        feature_detector->Detect(image_gray, features, lines);
+        k4a_infer.Draw_Lines(image_gray, lines);
 
-        // yolo.Single_Inference(image_color, objs);
 
-        // if(index < 500)
-        // {
-        //     pcl::io::savePLYFileASCII("/home/right/RIGHT-Infer/datasets/ply/test/basket" + std::to_string(index++) + ".ply", cloud);
-        //     std::cout << "Basket" << index << " Save Success!" << std::endl; 
-        //     usleep(1000);
-        // }
-        // else
-        // {
-        //     std::cout << "Pointcloud Save Over!" << std::endl; 
-        // }
-        // k4a.Color_With_Mask(image_color, objs);
-        // k4a.Depth_With_Mask(image_depth, objs);     
-
-        // cv::imshow("Seg Depth Image", image_depth);
-        cv::imshow("Seg Color Image", image_color);
+        cv::imshow("Color Image", image_gray);
         if (cv::waitKey(1) == 27) break;
 
     }

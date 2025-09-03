@@ -1,0 +1,6 @@
+use_superpoint: 1
+max_keypoints: 350
+keypoint_threshold: 0.0035
+remove_borders: 4 
+line_threshold: 0.95
+line_length_threshold: 20

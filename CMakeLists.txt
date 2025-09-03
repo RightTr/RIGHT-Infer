@@ -8,6 +8,8 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(TENSORRT_DIR "/home/right/third-party/TensorRT-8.6.1.6")
 
+add_compile_options(-Wno-deprecated-declarations)
+
 find_package(Threads REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(CUDA REQUIRED)
@@ -56,7 +58,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/3rdparty/tensorrtbuffer)
 #     ${TENSORRT_DIR}/lib/libnvinfer.so
 #     realsense2::realsense2
 #     yaml-cpp
-# )
+# )add_compile_options(-Wno-deprecated-declarations)
 
 # add_executable(rs_stereo src/rs_stereo.cpp src/realsense.cpp src/myinfer.cpp 
 #                     src/utils_all_in_one.cpp src/params.cpp src/uart.cpp)
@@ -71,8 +73,10 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/3rdparty/tensorrtbuffer)
 #     yaml-cpp
 # )
 
-add_executable(k4a_debug src/k4a_debug.cpp src/sensor/azurekinect_infer.cpp 
-                        src/myinfer.cpp src/plnet/plnet.cpp src/sensor/azurekinect.cpp)
+add_executable(k4a_debug src/k4a_debug.cpp src/sensor/azurekinect.cpp src/sensor/azurekinect_infer.cpp 
+                        src/yolo/myinfer.cpp src/featdetector/plnet.cpp 
+                        src/featdetector/myinfer.cpp src/featdetector/super_point.cpp
+                        src/featdetector/utils.cpp)
 
 target_link_libraries(k4a_debug 
     ${OpenCV_LIBS}
@@ -83,6 +87,7 @@ target_link_libraries(k4a_debug
     ${TENSORRT_DIR}/lib/libnvinfer.so
     ${TENSORRT_DIR}/lib/libnvonnxparser.so
     tensorrtbuffer
+    yaml-cpp
 )
 
 # add_executable(rs_debug src/rs_debug.cpp src/sensor/realsense_infer.cpp 
@@ -99,4 +104,4 @@ target_link_libraries(k4a_debug
 #     tensorrtbuffer
 # )
 
-add_subdirectory(src/tools tools)
+# add_subdirectory(src/tools tools)
