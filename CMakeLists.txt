@@ -73,15 +73,32 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/3rdparty/tensorrtbuffer)
 #     yaml-cpp
 # )
 
-add_executable(k4a_debug src/k4a_debug.cpp src/sensor/azurekinect.cpp src/sensor/azurekinect_infer.cpp 
+# add_executable(k4a_debug src/k4a_debug.cpp src/sensor/azurekinect.cpp src/sensor/azurekinect_infer.cpp 
+#                         src/yolo/myinfer.cpp src/featdetector/plnet.cpp 
+#                         src/featdetector/myinfer.cpp src/featdetector/super_point.cpp
+#                         src/featdetector/utils.cpp)
+
+# target_link_libraries(k4a_debug 
+#     ${OpenCV_LIBS}
+#     ${PCL_LIBRARIES}
+#     k4a
+#     /home/right/RIGHT-Infer/lib/libyolo.a
+#     cuda cublas cudart cudnn
+#     ${TENSORRT_DIR}/lib/libnvinfer.so
+#     ${TENSORRT_DIR}/lib/libnvonnxparser.so
+#     tensorrtbuffer
+#     yaml-cpp
+# )
+
+add_executable(rs_debug src/rs_debug.cpp src/sensor/realsense.cpp 
                         src/yolo/myinfer.cpp src/featdetector/plnet.cpp 
                         src/featdetector/myinfer.cpp src/featdetector/super_point.cpp
                         src/featdetector/utils.cpp)
 
-target_link_libraries(k4a_debug 
+target_link_libraries(rs_debug 
     ${OpenCV_LIBS}
     ${PCL_LIBRARIES}
-    k4a
+    realsense2::realsense2
     /home/right/RIGHT-Infer/lib/libyolo.a
     cuda cublas cudart cudnn
     ${TENSORRT_DIR}/lib/libnvinfer.so
@@ -89,19 +106,5 @@ target_link_libraries(k4a_debug
     tensorrtbuffer
     yaml-cpp
 )
-
-# add_executable(rs_debug src/rs_debug.cpp src/sensor/realsense_infer.cpp 
-#                         src/myinfer.cpp src/plnet/plnet.cpp src/sensor/realsense.cpp)
-
-# target_link_libraries(rs_debug 
-#     ${OpenCV_LIBS}
-#     ${PCL_LIBRARIES}
-#     realsense2::realsense2
-#     /home/right/RIGHT-Infer/lib/libyolo.a
-#     cuda cublas cudart cudnn
-#     ${TENSORRT_DIR}/lib/libnvinfer.so
-#     ${TENSORRT_DIR}/lib/libnvonnxparser.so
-#     tensorrtbuffer
-# )
 
 # add_subdirectory(src/tools tools)

@@ -11,16 +11,8 @@
 #include <unistd.h>
 #include <string>
 
-#define COUT_RED_START      std::cout << "\033[1;31m";
-#define COUT_GREEN_START    std::cout << "\033[1;32m";
-#define COUT_YELLOW_START   std::cout << "\033[1;33m";
-#define COUT_BLUE_START     std::cout << "\033[1;34m";
-#define COUT_PURPLE_START   std::cout << "\033[1;35m";
-#define COUT_CYAN_START     std::cout << "\033[1;36m";
-#define COUT_WHITE_START    std::cout << "\033[1;37m";
-#define COUT_COLOR_END      std::cout << "\033[0m";
+#include "camerabase.hpp"
 
-#define MIN_DISTANCE 2.0
 
 class RealSense
 {
@@ -29,28 +21,38 @@ class RealSense
         rs2::config cfg;
         rs2::pipeline_profile profile;
         rs2::frameset frameset;
+        cv::Mat image_rs_color, image_rs_depth;
+        cv::Mat image_rs_infrared_left, image_rs_infrared_right;
+        int frame_count = 0;
+
+        ColorIntrinsics intrin_color;
+        DepthIntrinsics intrin_depth;
 
         RealSense() = default;
 
         void Configuration_Default();
 
-        void Configuration_Infrared_Only();
+        void Configuration_RGBD();
 
-    protected:
-        cv::Mat image_rs_color, image_rs_depth;
-        cv::Mat image_rs_infrared_left, image_rs_infrared_right;
-        rs2_intrinsics intrinsics_depth;
-        rs2_intrinsics intrinsics_color;
-        rs2_intrinsics intrinsics_infrared;
-        int frame_count = 0;
+        void Configuration_Infrared_Only();
 
     public:
 
         static RealSense Create_Default();
 
+        static RealSense Create_RGBD();
+
         static RealSense Create_Infrared_Only();
 
-        void Configuration();
+        inline const ColorIntrinsics& get_ColorIntrinsics() const noexcept
+        {
+            return intrin_color;
+        }
+
+        inline const DepthIntrinsics& get_DepthIntrinsics() const noexcept
+        {
+            return intrin_depth;
+        }
         
         void Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth);
 

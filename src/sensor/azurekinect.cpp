@@ -33,7 +33,7 @@ void K4a::Installed_Count()
     else
     {
         COUT_BLUE_START
-        cout << "Find " << device_count << " Device(s)" << endl;
+        cout << "Find " << device_count << " Kinect Device(s)" << endl;
         COUT_COLOR_END
     }
 }
@@ -52,7 +52,20 @@ void K4a::Configuration()
     COUT_COLOR_END
     k4aCalibration = device.get_calibration(config.depth_mode, config.color_resolution);
     k4aTransformation = k4a::transformation(k4aCalibration);
-    color_intrinsics = k4aCalibration.color_camera_calibration;
+    const auto& intrinsics_color = k4aCalibration.color_camera_calibration.intrinsics.parameters.param;
+    const auto& intrinsics_depth = k4aCalibration.depth_camera_calibration.intrinsics.parameters.param;
+
+    intrin_color._fx = intrinsics_color.fx;
+    intrin_color._fy = intrinsics_color.fy;
+    intrin_color._cx = intrinsics_color.cx;
+    intrin_color._cy = intrinsics_color.cy;
+
+    intrin_depth._fx = intrinsics_depth.fx;
+    intrin_depth._fy = intrinsics_depth.fy;
+    intrin_depth._cx = intrinsics_depth.cx;
+    intrin_depth._cy = intrinsics_depth.cy;
+    intrin_depth._depth_scale = 0.001f;
+
 }
 
 void K4a::Image_to_Cv(cv::Mat &image_cv_color, cv::Mat &image_cv_depth)

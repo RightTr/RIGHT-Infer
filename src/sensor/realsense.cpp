@@ -6,12 +6,51 @@ void RealSense::Configuration_Default()
 {
     cfg.enable_stream(RS2_STREAM_COLOR, 640, 360, RS2_FORMAT_BGR8, 60);
     profile = pipe.start(cfg);
-    rs2::video_stream_profile color_profile =
-        profile.get_stream(RS2_STREAM_COLOR).as<rs2::video_stream_profile>();
-    intrinsics_color = color_profile.get_intrinsics();
+
     COUT_GREEN_START
     std::cout << "Open Realsense Default Success!" << std::endl;
     COUT_COLOR_END
+
+    rs2::video_stream_profile color_profile =
+        profile.get_stream(RS2_STREAM_COLOR).as<rs2::video_stream_profile>();
+    rs2_intrinsics intrinsics_color = color_profile.get_intrinsics();
+
+    intrin_color._fx = intrinsics_color.fx;
+    intrin_color._fy = intrinsics_color.fy;
+    intrin_color._cx = intrinsics_color.ppx;
+    intrin_color._cy = intrinsics_color.ppy;
+}
+
+void RealSense::Configuration_RGBD()
+{
+    cfg.enable_stream(RS2_STREAM_COLOR, 640, 480, RS2_FORMAT_BGR8, 30);
+    cfg.enable_stream(RS2_STREAM_DEPTH, 640, 480, RS2_FORMAT_Z16, 30);
+    profile = pipe.start(cfg);
+
+    COUT_GREEN_START
+    std::cout << "Open Realsense RGBD Success!" << std::endl;
+    COUT_COLOR_END
+
+    rs2::video_stream_profile color_profile =
+        profile.get_stream(RS2_STREAM_COLOR).as<rs2::video_stream_profile>();
+    rs2_intrinsics intrinsics_color = color_profile.get_intrinsics();
+
+    rs2::video_stream_profile depth_profile =
+        profile.get_stream(RS2_STREAM_DEPTH).as<rs2::video_stream_profile>();
+    rs2_intrinsics intrinsics_depth = depth_profile.get_intrinsics();
+    auto depth_sensor = profile.get_device().first<rs2::depth_sensor>();
+    float depth_scale = depth_sensor.get_depth_scale();
+
+    intrin_color._fx = intrinsics_color.fx;
+    intrin_color._fy = intrinsics_color.fy;
+    intrin_color._cx = intrinsics_color.ppx;
+    intrin_color._cy = intrinsics_color.ppy;
+
+    intrin_depth._fx = intrinsics_depth.fx;
+    intrin_depth._fy = intrinsics_depth.fy;
+    intrin_depth._cx = intrinsics_depth.ppx;
+    intrin_depth._cy = intrinsics_depth.ppy;
+    intrin_depth._depth_scale = depth_scale;
 }
 
 void RealSense::Configuration_Infrared_Only()
@@ -21,7 +60,6 @@ void RealSense::Configuration_Infrared_Only()
     profile = pipe.start(cfg);
     rs2::video_stream_profile infrared_profile = 
         profile.get_stream(RS2_STREAM_INFRARED).as<rs2::video_stream_profile>();
-    intrinsics_infrared = infrared_profile.get_intrinsics();
     for(auto&& sensor : profile.get_device().query_sensors()) // Disable the infrared laser emitter of RealSense camera
     {
         if(sensor.supports(RS2_OPTION_EMITTER_ENABLED)) 
@@ -45,6 +83,13 @@ RealSense RealSense::Create_Infrared_Only()
 {
     RealSense rs;
     rs.Configuration_Infrared_Only();
+    return rs;
+}
+
+RealSense RealSense::Create_RGBD()
+{
+    RealSense rs;
+    rs.Configuration_RGBD();
     return rs;
 }
 
